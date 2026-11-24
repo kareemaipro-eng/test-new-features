@@ -112,6 +112,43 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
+    .filter-toolbar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .filter-toolbar-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+    .glass-select {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(15, 45, 35, 0.04);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .glass-select:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+    .glass-select.is-filtered {
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(101, 163, 13, 0.14));
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
     /* Skeleton Shimmer Loading */
     .skeleton-card {
       background: rgba(255, 255, 255, 0.55);
@@ -309,8 +346,8 @@
       margin-bottom: 14px;
     }
 
-    /* utive Dashboard Specific Components */
-    .-hero {
+    /* Executive Dashboard Specific Components */
+    .exec-hero {
       background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(15, 118, 110, 0.88));
       backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.45);
@@ -902,7 +939,7 @@
     </button>
   </nav>
 
-  <!-- Side Drawer for Remaining Sheets & utive Dashboard -->
+  <!-- Side Drawer for Remaining Sheets & Executive Dashboard -->
   <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer(false)"></div>
   <aside id="sideDrawer" class="side-drawer">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
@@ -1762,14 +1799,16 @@
         <div class="glass-card" style="padding:12px;margin-bottom:12px;">
           <input type="text" class="form-control" placeholder="بحث باسم الفريق أو الكود..." value="${escapeHtml(appState.teamSearch)}"
                  oninput="appState.teamSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
-          <div class="filter-row" style="margin-bottom:0;">
-            ${coachesList.map(c => `
-              <button class="filter-chip ${appState.teamCoachFilter === c ? 'active' : ''}"
-                      onclick="appState.teamCoachFilter = '${escapeHtml(c)}'; renderCurrentView();">
-                ${c === 'all' ? 'كل المدربين' : escapeHtml(c)}
-              </button>
-            `).join('')}
-            ${hasActiveTeamFilter ? `<button class="filter-chip" style="color:var(--danger);" onclick="resetTeamFilters()">إعادة ضبط</button>` : ''}
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select class="glass-select ${appState.teamCoachFilter !== 'all' ? 'is-filtered' : ''}"
+                    onchange="appState.teamCoachFilter = this.value; renderCurrentView();">
+              ${coachesList.map(c => `
+                <option value="${escapeHtml(c)}" ${appState.teamCoachFilter === c ? 'selected' : ''}>
+                  ${c === 'all' ? 'كل المدربين' : escapeHtml(c)}
+                </option>
+              `).join('')}
+            </select>
+            ${hasActiveTeamFilter ? `<button class="btn btn-danger btn-sm" onclick="resetTeamFilters()">إعادة ضبط</button>` : ''}
           </div>
         </div>
 
@@ -1854,22 +1893,25 @@
           <div class="glass-card" style="padding:12px;margin-bottom:12px;">
             <input type="text" class="form-control" placeholder="بحث باسم اللاعب أو الكود أو ولي الأمر..." value="${escapeHtml(appState.playerSearch)}"
                    oninput="appState.playerSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
-            <div class="filter-row">
-              ${pTeams.map(pt => `
-                <button class="filter-chip ${appState.playerTeamFilter === pt ? 'active' : ''}"
-                        onclick="appState.playerTeamFilter = '${escapeHtml(pt)}'; renderCurrentView();">
-                  ${pt === 'all' ? 'كل الفرق' : escapeHtml(pt)}
-                </button>
-              `).join('')}
+            <div class="filter-toolbar">
+              <select class="glass-select ${appState.playerTeamFilter !== 'all' ? 'is-filtered' : ''}"
+                      onchange="appState.playerTeamFilter = this.value; renderCurrentView();">
+                ${pTeams.map(pt => `
+                  <option value="${escapeHtml(pt)}" ${appState.playerTeamFilter === pt ? 'selected' : ''}>
+                    ${pt === 'all' ? 'كل الفرق' : escapeHtml(pt)}
+                  </option>
+                `).join('')}
+              </select>
+              <select class="glass-select ${appState.playerNotesFilter !== 'all' ? 'is-filtered' : ''}"
+                      onchange="appState.playerNotesFilter = this.value; renderCurrentView();">
+                <option value="all" ${appState.playerNotesFilter === 'all' ? 'selected' : ''}>كل الملاحظات</option>
+                <option value="with_notes" ${appState.playerNotesFilter === 'with_notes' ? 'selected' : ''}>يوجد ملاحظات</option>
+                <option value="no_notes" ${appState.playerNotesFilter === 'no_notes' ? 'selected' : ''}>بدون ملاحظات</option>
+              </select>
             </div>
-            <div class="filter-row" style="margin-bottom:0;">
-              <button class="filter-chip ${appState.playerNotesFilter === 'all' ? 'active' : ''}" onclick="appState.playerNotesFilter = 'all'; renderCurrentView();">الكل</button>
-              <button class="filter-chip ${appState.playerNotesFilter === 'with_notes' ? 'active' : ''}" onclick="appState.playerNotesFilter = 'with_notes'; renderCurrentView();">يوجد ملاحظات</button>
-              <button class="filter-chip ${appState.playerNotesFilter === 'no_notes' ? 'active' : ''}" onclick="appState.playerNotesFilter = 'no_notes'; renderCurrentView();">بدون ملاحظات</button>
-              ${(pq || appState.playerTeamFilter !== 'all' || appState.playerNotesFilter !== 'all') ? `
-                <button class="filter-chip" style="color:var(--danger);" onclick="appState.playerSearch='';appState.playerTeamFilter='all';appState.playerNotesFilter='all';renderCurrentView();">إعادة ضبط</button>
-              ` : ''}
-            </div>
+            ${(pq || appState.playerTeamFilter !== 'all' || appState.playerNotesFilter !== 'all') ? `
+              <button class="btn btn-danger btn-sm btn-block" onclick="appState.playerSearch='';appState.playerTeamFilter='all';appState.playerNotesFilter='all';renderCurrentView();">إعادة ضبط الفلاتر</button>
+            ` : ''}
           </div>` : ''}
         <div class="cards-stack">
           ${players.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد بيانات لاعبين متاحة لهذا الحساب.</p></div>` : ''}
@@ -1947,31 +1989,37 @@
           ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddScheduleModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة موعد</button>` : ''}
         </div>
 
-        <div class="filter-row">
-          <button class="filter-chip ${appState.scheduleFilter === 'all' ? 'active' : ''}" onclick="setScheduleFilter('all')">الكل (${rawSchedule.length})</button>
-          <button class="filter-chip ${appState.scheduleFilter === 'upcoming' ? 'active' : ''}" onclick="setScheduleFilter('upcoming')">القادمة</button>
-          <button class="filter-chip ${appState.scheduleFilter === 'past' ? 'active' : ''}" onclick="setScheduleFilter('past')">السابقة</button>
+        <div class="glass-card" style="padding:11px;margin-bottom:12px;">
+          <div class="${role !== 'parent' ? 'filter-toolbar-3' : ''}">
+            <select class="glass-select ${appState.scheduleFilter !== 'all' ? 'is-filtered' : ''}"
+                    onchange="setScheduleFilter(this.value)">
+              <option value="all" ${appState.scheduleFilter === 'all' ? 'selected' : ''}>كل المواعيد (${rawSchedule.length})</option>
+              <option value="upcoming" ${appState.scheduleFilter === 'upcoming' ? 'selected' : ''}>القادمة</option>
+              <option value="past" ${appState.scheduleFilter === 'past' ? 'selected' : ''}>السابقة</option>
+            </select>
+            ${role !== 'parent' ? `
+              <select class="glass-select ${appState.scheduleTeamFilter !== 'all' ? 'is-filtered' : ''}"
+                      onchange="appState.scheduleTeamFilter = this.value; renderCurrentView();">
+                ${sTeams.map(st => `
+                  <option value="${escapeHtml(st)}" ${appState.scheduleTeamFilter === st ? 'selected' : ''}>
+                    ${st === 'all' ? 'كل الفرق' : escapeHtml(st)}
+                  </option>
+                `).join('')}
+              </select>
+              <select class="glass-select ${appState.scheduleCoachFilter !== 'all' ? 'is-filtered' : ''}"
+                      onchange="appState.scheduleCoachFilter = this.value; renderCurrentView();">
+                ${sCoaches.map(sc => `
+                  <option value="${escapeHtml(sc)}" ${appState.scheduleCoachFilter === sc ? 'selected' : ''}>
+                    ${sc === 'all' ? 'كل المدربين' : escapeHtml(sc)}
+                  </option>
+                `).join('')}
+              </select>` : ''}
+          </div>
           ${(appState.scheduleFilter !== 'all' || appState.scheduleTeamFilter !== 'all' || appState.scheduleCoachFilter !== 'all') ? `
-            <button class="filter-chip" style="color:var(--danger);" onclick="appState.scheduleFilter='all';appState.scheduleTeamFilter='all';appState.scheduleCoachFilter='all';renderCurrentView();">إعادة ضبط</button>
+            <button class="btn btn-danger btn-sm btn-block" style="margin-top:4px;"
+                    onclick="appState.scheduleFilter='all';appState.scheduleTeamFilter='all';appState.scheduleCoachFilter='all';renderCurrentView();">إعادة ضبط الفلاتر</button>
           ` : ''}
         </div>
-        ${role !== 'parent' ? `
-          <div class="filter-row">
-            ${sTeams.map(st => `
-              <button class="filter-chip ${appState.scheduleTeamFilter === st ? 'active' : ''}"
-                      onclick="appState.scheduleTeamFilter = '${escapeHtml(st)}'; renderCurrentView();">
-                ${st === 'all' ? 'كل الفرق' : escapeHtml(st)}
-              </button>
-            `).join('')}
-          </div>
-          <div class="filter-row">
-            ${sCoaches.map(sc => `
-              <button class="filter-chip ${appState.scheduleCoachFilter === sc ? 'active' : ''}"
-                      onclick="appState.scheduleCoachFilter = '${escapeHtml(sc)}'; renderCurrentView();">
-                ${sc === 'all' ? 'كل المدربين' : escapeHtml(sc)}
-              </button>
-            `).join('')}
-          </div>` : ''}
 
         <div class="cards-stack">
           ${schedule.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد مواعيد مطابقة للفلتر المحدد.</p></div>` : ''}
@@ -2049,11 +2097,12 @@
           <div class="glass-card" style="padding:12px;margin-bottom:12px;">
             <input type="text" class="form-control" placeholder="بحث باسم اللاعب أو المدرب..." value="${escapeHtml(appState.privateSearch)}"
                    oninput="appState.privateSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
-            <div class="filter-row" style="margin-bottom:0;">
-              <button class="filter-chip ${appState.privateStatusFilter === 'all' ? 'active' : ''}" onclick="appState.privateStatusFilter='all';renderCurrentView();">الكل</button>
-              <button class="filter-chip ${appState.privateStatusFilter === 'confirmed' ? 'active' : ''}" onclick="appState.privateStatusFilter='confirmed';renderCurrentView();">مؤكدة</button>
-              <button class="filter-chip ${appState.privateStatusFilter === 'pending' ? 'active' : ''}" onclick="appState.privateStatusFilter='pending';renderCurrentView();">بانتظار التأكيد</button>
-            </div>
+            <select class="glass-select ${appState.privateStatusFilter !== 'all' ? 'is-filtered' : ''}"
+                    onchange="appState.privateStatusFilter = this.value; renderCurrentView();">
+              <option value="all" ${appState.privateStatusFilter === 'all' ? 'selected' : ''}>كل الحصص</option>
+              <option value="confirmed" ${appState.privateStatusFilter === 'confirmed' ? 'selected' : ''}>مؤكدة</option>
+              <option value="pending" ${appState.privateStatusFilter === 'pending' ? 'selected' : ''}>بانتظار التأكيد</option>
+            </select>
           </div>` : ''}
         <div class="cards-stack">
           ${list.length === 0 ? `<div class="glass-card empty-state"><p>${isParent ? 'لا توجد حصص Private مسجلة لابنك حالياً.' : 'لا توجد حصص Private مسجلة.'}</p></div>` : ''}
@@ -2113,19 +2162,23 @@
           ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddEduModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة درس</button>` : ''}
         </div>
 
-        <div class="filter-row">
-          ${categories.map(cat => `
-            <button class="filter-chip ${appState.eduFilter === cat ? 'active' : ''}" onclick="setEduFilter('${escapeHtml(cat)}')">
-              ${cat === 'all' ? 'كل الرياضات' : escapeHtml(cat)}
-            </button>
-          `).join('')}
-        </div>
-        <div class="filter-row">
-          ${mediaTypes.map(mt => `
-            <button class="filter-chip ${appState.eduMediaFilter === mt ? 'active' : ''}" onclick="appState.eduMediaFilter='${escapeHtml(mt)}';renderCurrentView();">
-              ${mt === 'all' ? 'كل الوسائط' : escapeHtml(mt)}
-            </button>
-          `).join('')}
+        <div class="filter-toolbar" style="margin-bottom:12px;">
+          <select class="glass-select ${appState.eduFilter !== 'all' ? 'is-filtered' : ''}"
+                  onchange="setEduFilter(this.value)">
+            ${categories.map(cat => `
+              <option value="${escapeHtml(cat)}" ${appState.eduFilter === cat ? 'selected' : ''}>
+                ${cat === 'all' ? 'كل الرياضات' : escapeHtml(cat)}
+              </option>
+            `).join('')}
+          </select>
+          <select class="glass-select ${appState.eduMediaFilter !== 'all' ? 'is-filtered' : ''}"
+                  onchange="appState.eduMediaFilter = this.value; renderCurrentView();">
+            ${mediaTypes.map(mt => `
+              <option value="${escapeHtml(mt)}" ${appState.eduMediaFilter === mt ? 'selected' : ''}>
+                ${mt === 'all' ? 'كل الوسائط' : escapeHtml(mt)}
+              </option>
+            `).join('')}
+          </select>
         </div>
 
         <div class="cards-stack">
@@ -2164,12 +2217,15 @@
           <h3><i data-lucide="award" style="width:19px;height:19px;color:var(--primary);"></i> الجهاز الفني والمدربون (${coaches.length})</h3>
           ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddCoachModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة مدرب</button>` : ''}
         </div>
-        <div class="filter-row">
-          ${branches.map(br => `
-            <button class="filter-chip ${appState.coachBranchFilter === br ? 'active' : ''}" onclick="appState.coachBranchFilter='${escapeHtml(br)}';renderCurrentView();">
-              ${br === 'all' ? 'كل الفروع' : 'فرع ' + escapeHtml(br)}
-            </button>
-          `).join('')}
+        <div style="margin-bottom:12px;">
+          <select class="glass-select ${appState.coachBranchFilter !== 'all' ? 'is-filtered' : ''}"
+                  onchange="appState.coachBranchFilter = this.value; renderCurrentView();">
+            ${branches.map(br => `
+              <option value="${escapeHtml(br)}" ${appState.coachBranchFilter === br ? 'selected' : ''}>
+                ${br === 'all' ? 'كل الفروع' : 'فرع ' + escapeHtml(br)}
+              </option>
+            `).join('')}
+          </select>
         </div>
         <div class="cards-stack">
           ${coaches.map(c => `
@@ -2221,17 +2277,21 @@
           ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddSubModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> تسجيل اشتراك</button>` : ''}
         </div>
         ${isAdmin ? `
-          <div class="filter-row">
-            <button class="filter-chip ${appState.subStatusFilter === 'all' ? 'active' : ''}" onclick="appState.subStatusFilter='all';renderCurrentView();">الكل (${rawSubs.length})</button>
-            <button class="filter-chip ${appState.subStatusFilter === 'paid' ? 'active' : ''}" onclick="appState.subStatusFilter='paid';renderCurrentView();">تم الدفع (${paidCount})</button>
-            <button class="filter-chip ${appState.subStatusFilter === 'unpaid' ? 'active' : ''}" onclick="appState.subStatusFilter='unpaid';renderCurrentView();">غير مدفوع (${unpaidCount})</button>
-          </div>
-          <div class="filter-row">
-            ${months.map(m => `
-              <button class="filter-chip ${appState.subMonthFilter === m ? 'active' : ''}" onclick="appState.subMonthFilter='${escapeHtml(m)}';renderCurrentView();">
-                ${m === 'all' ? 'كل الشهور' : escapeHtml(m)}
-              </button>
-            `).join('')}
+          <div class="filter-toolbar" style="margin-bottom:12px;">
+            <select class="glass-select ${appState.subStatusFilter !== 'all' ? 'is-filtered' : ''}"
+                    onchange="appState.subStatusFilter = this.value; renderCurrentView();">
+              <option value="all" ${appState.subStatusFilter === 'all' ? 'selected' : ''}>كل الاشتراكات (${rawSubs.length})</option>
+              <option value="paid" ${appState.subStatusFilter === 'paid' ? 'selected' : ''}>تم الدفع (${paidCount})</option>
+              <option value="unpaid" ${appState.subStatusFilter === 'unpaid' ? 'selected' : ''}>غير مدفوع (${unpaidCount})</option>
+            </select>
+            <select class="glass-select ${appState.subMonthFilter !== 'all' ? 'is-filtered' : ''}"
+                    onchange="appState.subMonthFilter = this.value; renderCurrentView();">
+              ${months.map(m => `
+                <option value="${escapeHtml(m)}" ${appState.subMonthFilter === m ? 'selected' : ''}>
+                  ${m === 'all' ? 'كل الشهور' : escapeHtml(m)}
+                </option>
+              `).join('')}
+            </select>
           </div>` : ''}
         <div class="cards-stack">
           ${subs.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد بيانات اشتراكات متاحة.</p></div>` : ''}
