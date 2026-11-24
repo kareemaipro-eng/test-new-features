@@ -124,28 +124,104 @@
       gap: 7px;
       margin-bottom: 10px;
     }
-    .glass-select {
+    /* Custom Liquid Glass Dropdown */
+    .glass-dd {
+      position: relative;
+      width: 100%;
+    }
+    .glass-dd-btn {
       width: 100%;
       padding: 8px 11px;
       border-radius: 13px;
       border: 1px solid rgba(255, 255, 255, 0.95);
-      background: rgba(255, 255, 255, 0.82);
-      backdrop-filter: blur(14px);
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
       font-size: 12px;
       font-weight: 700;
       color: var(--text-main);
-      outline: none;
       cursor: pointer;
-      box-shadow: 0 3px 10px rgba(15, 45, 35, 0.04);
-      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(15, 45, 35, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      transition: all 0.2s ease;
+      text-align: right;
     }
-    .glass-select:focus {
+    .glass-dd-btn span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .glass-dd-btn svg {
+      flex-shrink: 0;
+      transition: transform 0.22s ease;
+    }
+    .glass-dd.open .glass-dd-btn {
       border-color: var(--primary);
-      background: #fff;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 6px 18px rgba(15, 118, 110, 0.12);
     }
-    .glass-select.is-filtered {
+    .glass-dd.open .glass-dd-btn svg {
+      transform: rotate(180deg);
+    }
+    .glass-dd-btn.is-filtered {
       background: linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(101, 163, 13, 0.14));
-      border-color: var(--primary);
+      border-color: rgba(15, 118, 110, 0.45);
+      color: var(--primary);
+    }
+    .glass-dd-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 100%;
+      width: max-content;
+      max-width: 240px;
+      max-height: 220px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(26px) saturate(200%);
+      -webkit-backdrop-filter: blur(26px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.96);
+      border-radius: 16px;
+      padding: 6px;
+      box-shadow: 0 16px 38px rgba(15, 45, 35, 0.15), inset 0 1px 1px #fff;
+      z-index: 65;
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+      animation: ddPop 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .glass-dd.open .glass-dd-menu {
+      display: flex;
+    }
+    @keyframes ddPop {
+      from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .glass-dd-item {
+      width: 100%;
+      padding: 8px 11px;
+      border: none;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: background 0.16s, color 0.16s;
+    }
+    .glass-dd-item:hover {
+      background: rgba(20, 184, 166, 0.1);
+    }
+    .glass-dd-item.selected {
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.16), rgba(101, 163, 13, 0.16));
       color: var(--primary);
     }
 
@@ -1058,6 +1134,53 @@
       appState.autoSyncTimer = setInterval(() => refreshData(false, true), 20000);
     });
 
+    // Custom Liquid Glass Dropdown Helper
+    function renderGlassDropdown(id, currentVal, options, onSelectFnName) {
+      const selectedOpt = options.find(o => String(o.value) === String(currentVal)) || options[0];
+      const isFiltered = String(currentVal) !== 'all';
+      return `
+        <div class="glass-dd" id="dd_${id}">
+          <button type="button" class="glass-dd-btn ${isFiltered ? 'is-filtered' : ''}" onclick="toggleGlassDropdown(event, 'dd_${id}')">
+            <span>${escapeHtml(selectedOpt ? selectedOpt.label : '')}</span>
+            <i data-lucide="chevron-down" style="width:14px;height:14px;"></i>
+          </button>
+          <div class="glass-dd-menu">
+            ${options.map(opt => {
+              const active = String(opt.value) === String(currentVal);
+              return `
+                <button type="button" class="glass-dd-item ${active ? 'selected' : ''}"
+                        onclick="${onSelectFnName}('${escapeHtml(String(opt.value))}')">
+                  <span>${escapeHtml(opt.label)}</span>
+                  ${active ? '<i data-lucide="check" style="width:13px;height:13px;color:var(--primary);"></i>' : ''}
+                </button>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }
+
+    function toggleGlassDropdown(e, ddId) {
+      e.stopPropagation();
+      const target = document.getElementById(ddId);
+      const wasOpen = target && target.classList.contains('open');
+      document.querySelectorAll('.glass-dd.open').forEach(el => el.classList.remove('open'));
+      if (target && !wasOpen) target.classList.add('open');
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.glass-dd.open').forEach(el => el.classList.remove('open'));
+    });
+
+    function onSelectTeamCoach(val) { appState.teamCoachFilter = val; renderCurrentView(); }
+    function onSelectPlayerTeam(val) { appState.playerTeamFilter = val; renderCurrentView(); }
+    function onSelectPlayerNotes(val) { appState.playerNotesFilter = val; renderCurrentView(); }
+    function onSelectScheduleTeam(val) { appState.scheduleTeamFilter = val; renderCurrentView(); }
+    function onSelectScheduleCoach(val) { appState.scheduleCoachFilter = val; renderCurrentView(); }
+    function onSelectPrivateStatus(val) { appState.privateStatusFilter = val; renderCurrentView(); }
+    function onSelectEduMedia(val) { appState.eduMediaFilter = val; renderCurrentView(); }
+    function onSelectCoachBranch(val) { appState.coachBranchFilter = val; renderCurrentView(); }
+    function onSelectSubStatus(val) { appState.subStatusFilter = val; renderCurrentView(); }
+    function onSelectSubMonth(val) { appState.subMonthFilter = val; renderCurrentView(); }
+
     function setupPullToRefresh() {
       let startY = 0;
       const ptr = document.getElementById('ptrIndicator');
@@ -1800,14 +1923,7 @@
           <input type="text" class="form-control" placeholder="بحث باسم الفريق أو الكود..." value="${escapeHtml(appState.teamSearch)}"
                  oninput="appState.teamSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
           <div style="display:flex;gap:8px;align-items:center;">
-            <select class="glass-select ${appState.teamCoachFilter !== 'all' ? 'is-filtered' : ''}"
-                    onchange="appState.teamCoachFilter = this.value; renderCurrentView();">
-              ${coachesList.map(c => `
-                <option value="${escapeHtml(c)}" ${appState.teamCoachFilter === c ? 'selected' : ''}>
-                  ${c === 'all' ? 'كل المدربين' : escapeHtml(c)}
-                </option>
-              `).join('')}
-            </select>
+            ${renderGlassDropdown('teamCoach', appState.teamCoachFilter, coachesList.map(c => ({ value: c, label: c === 'all' ? 'كل المدربين' : c })), 'onSelectTeamCoach')}
             ${hasActiveTeamFilter ? `<button class="btn btn-danger btn-sm" onclick="resetTeamFilters()">إعادة ضبط</button>` : ''}
           </div>
         </div>
@@ -1894,20 +2010,12 @@
             <input type="text" class="form-control" placeholder="بحث باسم اللاعب أو الكود أو ولي الأمر..." value="${escapeHtml(appState.playerSearch)}"
                    oninput="appState.playerSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
             <div class="filter-toolbar">
-              <select class="glass-select ${appState.playerTeamFilter !== 'all' ? 'is-filtered' : ''}"
-                      onchange="appState.playerTeamFilter = this.value; renderCurrentView();">
-                ${pTeams.map(pt => `
-                  <option value="${escapeHtml(pt)}" ${appState.playerTeamFilter === pt ? 'selected' : ''}>
-                    ${pt === 'all' ? 'كل الفرق' : escapeHtml(pt)}
-                  </option>
-                `).join('')}
-              </select>
-              <select class="glass-select ${appState.playerNotesFilter !== 'all' ? 'is-filtered' : ''}"
-                      onchange="appState.playerNotesFilter = this.value; renderCurrentView();">
-                <option value="all" ${appState.playerNotesFilter === 'all' ? 'selected' : ''}>كل الملاحظات</option>
-                <option value="with_notes" ${appState.playerNotesFilter === 'with_notes' ? 'selected' : ''}>يوجد ملاحظات</option>
-                <option value="no_notes" ${appState.playerNotesFilter === 'no_notes' ? 'selected' : ''}>بدون ملاحظات</option>
-              </select>
+              ${renderGlassDropdown('playerTeam', appState.playerTeamFilter, pTeams.map(pt => ({ value: pt, label: pt === 'all' ? 'كل الفرق' : pt })), 'onSelectPlayerTeam')}
+              ${renderGlassDropdown('playerNotes', appState.playerNotesFilter, [
+                { value: 'all', label: 'كل الملاحظات' },
+                { value: 'with_notes', label: 'يوجد ملاحظات' },
+                { value: 'no_notes', label: 'بدون ملاحظات' }
+              ], 'onSelectPlayerNotes')}
             </div>
             ${(pq || appState.playerTeamFilter !== 'all' || appState.playerNotesFilter !== 'all') ? `
               <button class="btn btn-danger btn-sm btn-block" onclick="appState.playerSearch='';appState.playerTeamFilter='all';appState.playerNotesFilter='all';renderCurrentView();">إعادة ضبط الفلاتر</button>
@@ -1991,29 +2099,15 @@
 
         <div class="glass-card" style="padding:11px;margin-bottom:12px;">
           <div class="${role !== 'parent' ? 'filter-toolbar-3' : ''}">
-            <select class="glass-select ${appState.scheduleFilter !== 'all' ? 'is-filtered' : ''}"
-                    onchange="setScheduleFilter(this.value)">
-              <option value="all" ${appState.scheduleFilter === 'all' ? 'selected' : ''}>كل المواعيد (${rawSchedule.length})</option>
-              <option value="upcoming" ${appState.scheduleFilter === 'upcoming' ? 'selected' : ''}>القادمة</option>
-              <option value="past" ${appState.scheduleFilter === 'past' ? 'selected' : ''}>السابقة</option>
-            </select>
+            ${renderGlassDropdown('schedPeriod', appState.scheduleFilter, [
+              { value: 'all', label: `كل المواعيد (${rawSchedule.length})` },
+              { value: 'upcoming', label: 'القادمة' },
+              { value: 'past', label: 'السابقة' }
+            ], 'setScheduleFilter')}
             ${role !== 'parent' ? `
-              <select class="glass-select ${appState.scheduleTeamFilter !== 'all' ? 'is-filtered' : ''}"
-                      onchange="appState.scheduleTeamFilter = this.value; renderCurrentView();">
-                ${sTeams.map(st => `
-                  <option value="${escapeHtml(st)}" ${appState.scheduleTeamFilter === st ? 'selected' : ''}>
-                    ${st === 'all' ? 'كل الفرق' : escapeHtml(st)}
-                  </option>
-                `).join('')}
-              </select>
-              <select class="glass-select ${appState.scheduleCoachFilter !== 'all' ? 'is-filtered' : ''}"
-                      onchange="appState.scheduleCoachFilter = this.value; renderCurrentView();">
-                ${sCoaches.map(sc => `
-                  <option value="${escapeHtml(sc)}" ${appState.scheduleCoachFilter === sc ? 'selected' : ''}>
-                    ${sc === 'all' ? 'كل المدربين' : escapeHtml(sc)}
-                  </option>
-                `).join('')}
-              </select>` : ''}
+              ${renderGlassDropdown('schedTeam', appState.scheduleTeamFilter, sTeams.map(st => ({ value: st, label: st === 'all' ? 'كل الفرق' : st })), 'onSelectScheduleTeam')}
+              ${renderGlassDropdown('schedCoach', appState.scheduleCoachFilter, sCoaches.map(sc => ({ value: sc, label: sc === 'all' ? 'كل المدربين' : sc })), 'onSelectScheduleCoach')}
+            ` : ''}
           </div>
           ${(appState.scheduleFilter !== 'all' || appState.scheduleTeamFilter !== 'all' || appState.scheduleCoachFilter !== 'all') ? `
             <button class="btn btn-danger btn-sm btn-block" style="margin-top:4px;"
@@ -2097,12 +2191,11 @@
           <div class="glass-card" style="padding:12px;margin-bottom:12px;">
             <input type="text" class="form-control" placeholder="بحث باسم اللاعب أو المدرب..." value="${escapeHtml(appState.privateSearch)}"
                    oninput="appState.privateSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
-            <select class="glass-select ${appState.privateStatusFilter !== 'all' ? 'is-filtered' : ''}"
-                    onchange="appState.privateStatusFilter = this.value; renderCurrentView();">
-              <option value="all" ${appState.privateStatusFilter === 'all' ? 'selected' : ''}>كل الحصص</option>
-              <option value="confirmed" ${appState.privateStatusFilter === 'confirmed' ? 'selected' : ''}>مؤكدة</option>
-              <option value="pending" ${appState.privateStatusFilter === 'pending' ? 'selected' : ''}>بانتظار التأكيد</option>
-            </select>
+            ${renderGlassDropdown('privStatus', appState.privateStatusFilter, [
+              { value: 'all', label: 'كل الحصص' },
+              { value: 'confirmed', label: 'مؤكدة' },
+              { value: 'pending', label: 'بانتظار التأكيد' }
+            ], 'onSelectPrivateStatus')}
           </div>` : ''}
         <div class="cards-stack">
           ${list.length === 0 ? `<div class="glass-card empty-state"><p>${isParent ? 'لا توجد حصص Private مسجلة لابنك حالياً.' : 'لا توجد حصص Private مسجلة.'}</p></div>` : ''}
@@ -2163,22 +2256,8 @@
         </div>
 
         <div class="filter-toolbar" style="margin-bottom:12px;">
-          <select class="glass-select ${appState.eduFilter !== 'all' ? 'is-filtered' : ''}"
-                  onchange="setEduFilter(this.value)">
-            ${categories.map(cat => `
-              <option value="${escapeHtml(cat)}" ${appState.eduFilter === cat ? 'selected' : ''}>
-                ${cat === 'all' ? 'كل الرياضات' : escapeHtml(cat)}
-              </option>
-            `).join('')}
-          </select>
-          <select class="glass-select ${appState.eduMediaFilter !== 'all' ? 'is-filtered' : ''}"
-                  onchange="appState.eduMediaFilter = this.value; renderCurrentView();">
-            ${mediaTypes.map(mt => `
-              <option value="${escapeHtml(mt)}" ${appState.eduMediaFilter === mt ? 'selected' : ''}>
-                ${mt === 'all' ? 'كل الوسائط' : escapeHtml(mt)}
-              </option>
-            `).join('')}
-          </select>
+          ${renderGlassDropdown('eduCat', appState.eduFilter, categories.map(cat => ({ value: cat, label: cat === 'all' ? 'كل الرياضات' : cat })), 'setEduFilter')}
+          ${renderGlassDropdown('eduMed', appState.eduMediaFilter, mediaTypes.map(mt => ({ value: mt, label: mt === 'all' ? 'كل الوسائط' : mt })), 'onSelectEduMedia')}
         </div>
 
         <div class="cards-stack">
@@ -2218,14 +2297,7 @@
           ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddCoachModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة مدرب</button>` : ''}
         </div>
         <div style="margin-bottom:12px;">
-          <select class="glass-select ${appState.coachBranchFilter !== 'all' ? 'is-filtered' : ''}"
-                  onchange="appState.coachBranchFilter = this.value; renderCurrentView();">
-            ${branches.map(br => `
-              <option value="${escapeHtml(br)}" ${appState.coachBranchFilter === br ? 'selected' : ''}>
-                ${br === 'all' ? 'كل الفروع' : 'فرع ' + escapeHtml(br)}
-              </option>
-            `).join('')}
-          </select>
+          ${renderGlassDropdown('coachBranch', appState.coachBranchFilter, branches.map(br => ({ value: br, label: br === 'all' ? 'كل الفروع' : 'فرع ' + br })), 'onSelectCoachBranch')}
         </div>
         <div class="cards-stack">
           ${coaches.map(c => `
@@ -2278,20 +2350,12 @@
         </div>
         ${isAdmin ? `
           <div class="filter-toolbar" style="margin-bottom:12px;">
-            <select class="glass-select ${appState.subStatusFilter !== 'all' ? 'is-filtered' : ''}"
-                    onchange="appState.subStatusFilter = this.value; renderCurrentView();">
-              <option value="all" ${appState.subStatusFilter === 'all' ? 'selected' : ''}>كل الاشتراكات (${rawSubs.length})</option>
-              <option value="paid" ${appState.subStatusFilter === 'paid' ? 'selected' : ''}>تم الدفع (${paidCount})</option>
-              <option value="unpaid" ${appState.subStatusFilter === 'unpaid' ? 'selected' : ''}>غير مدفوع (${unpaidCount})</option>
-            </select>
-            <select class="glass-select ${appState.subMonthFilter !== 'all' ? 'is-filtered' : ''}"
-                    onchange="appState.subMonthFilter = this.value; renderCurrentView();">
-              ${months.map(m => `
-                <option value="${escapeHtml(m)}" ${appState.subMonthFilter === m ? 'selected' : ''}>
-                  ${m === 'all' ? 'كل الشهور' : escapeHtml(m)}
-                </option>
-              `).join('')}
-            </select>
+            ${renderGlassDropdown('subStatus', appState.subStatusFilter, [
+              { value: 'all', label: `كل الاشتراكات (${rawSubs.length})` },
+              { value: 'paid', label: `تم الدفع (${paidCount})` },
+              { value: 'unpaid', label: `غير مدفوع (${unpaidCount})` }
+            ], 'onSelectSubStatus')}
+            ${renderGlassDropdown('subMonth', appState.subMonthFilter, months.map(m => ({ value: m, label: m === 'all' ? 'كل الشهور' : m })), 'onSelectSubMonth')}
           </div>` : ''}
         <div class="cards-stack">
           ${subs.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد بيانات اشتراكات متاحة.</p></div>` : ''}
