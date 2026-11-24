@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#eef6f2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Next Generation Tennis Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #f3f9f6 0%, #e7f2f8 48%, #f6f8ec 100%);
+      --glass-bg: rgba(255, 255, 255, 0.68);
+      --glass-bg-strong: rgba(255, 255, 255, 0.86);
+      --glass-border: rgba(255, 255, 255, 0.88);
+      --glass-shadow: 0 12px 32px rgba(15, 45, 35, 0.07), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+      --glass-shadow-sm: 0 6px 18px rgba(15, 45, 35, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      --primary: #0f766e;
+      --primary-light: #14b8a6;
+      --accent: #65a30d;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      overscroll-behavior-y: contain;
+      touch-action: pan-y;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 108px;
+      position: relative;
+    }
+
+    /* Ambient Liquid Blobs */
+    .liquid-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(65px);
+      z-index: -1;
+      opacity: 0.65;
+      pointer-events: none;
+      animation: floatOrb 14s ease-in-out infinite alternate;
+    }
+    .orb-1 {
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, #99f6e4, #bae6fd);
+      top: -60px;
+      right: -50px;
+    }
+    .orb-2 {
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, #d9f99d, #a7f3d0);
+      bottom: 80px;
+      left: -70px;
+      animation-delay: -5s;
+    }
+    .orb-3 {
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, #e0f2fe, #fef08a);
+      top: 42%;
+      right: 25%;
+      animation-delay: -9s;
+    }
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-18px, 24px) scale(1.08); }
+    }
+
+    /* Liquid Glass Utility */
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(22px) saturate(185%);
+      -webkit-backdrop-filter: blur(22px) saturate(185%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow-sm);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Skeleton Shimmer Loading */
+    .skeleton-card {
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .skeleton-line {
+      height: 14px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, rgba(203,213,225,0.35) 25%, rgba(255,255,255,0.85) 50%, rgba(203,213,225,0.35) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Pull to refresh indicator */
+    .ptr-indicator {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      height: 0;
+      overflow: hidden;
+      transition: height 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* App Container */
+    .app-shell {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 14px 16px;
+    }
+
+    /* Top Header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: var(--radius-xl);
+      margin-bottom: 14px;
+      position: sticky;
+      top: 10px;
+      z-index: 40;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0f766e, #65a30d);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 6px 14px rgba(15, 118, 110, 0.25);
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .brand-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .brand-text h1 {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      display: inline-block;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-pill {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s;
+    }
+    .icon-pill:active { transform: scale(0.95); }
+
+    /* Role Banner */
+    .role-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+    }
+
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-teal { background: rgba(20, 184, 166, 0.15); color: #0f766e; }
+    .badge-lime { background: rgba(101, 163, 13, 0.16); color: #4d7c0f; }
+    .badge-amber { background: rgba(245, 158, 11, 0.16); color: #b45309; }
+    .badge-red { background: rgba(239, 68, 68, 0.15); color: #b91c1c; }
+
+    /* Hero & Today Highlight Card */
+    .hero-card {
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.9), rgba(20, 184, 166, 0.84));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      color: #fff;
+      margin-bottom: 16px;
+      box-shadow: 0 14px 30px rgba(15, 118, 110, 0.22);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      top: -40px;
+      left: -30px;
+      pointer-events: none;
+    }
+    .hero-card h2 { font-size: 19px; font-weight: 800; margin-bottom: 4px; }
+    .hero-card p { font-size: 13px; opacity: 0.94; line-height: 1.5; }
+
+    .today-banner {
+      background: linear-gradient(135deg, rgba(101, 163, 13, 0.16), rgba(20, 184, 166, 0.14));
+      border: 1px solid rgba(101, 163, 13, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    /* Executive Dashboard Specific Components */
+    .exec-hero {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(15, 118, 110, 0.88));
+      backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: var(--radius-xl);
+      padding: 18px;
+      color: #fff;
+      margin-bottom: 14px;
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
+    }
+
+    .kpi-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 11px;
+      margin-bottom: 14px;
+    }
+
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: var(--glass-shadow-sm);
+    }
+    .kpi-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .kpi-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .kpi-val {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .kpi-sub {
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Donut Ring Chart */
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .donut-ring {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .donut-hole {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.94);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text-main);
+    }
+
+    /* Progress Bar */
+    .prog-track {
+      width: 100%;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.22);
+      overflow: hidden;
+      margin: 6px 0;
+    }
+    .prog-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    /* Comparison Row */
+    .comp-row {
+      padding: 12px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      margin-bottom: 10px;
+    }
+    .comp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .comp-cell {
+      background: rgba(255, 255, 255, 0.72);
+      padding: 6px 4px;
+      border-radius: 10px;
+    }
+    .comp-cell small {
+      display: block;
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .comp-cell strong {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    /* Filter Pills Row */
+    .filter-row {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      padding: 6px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.65);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-chip.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Grid Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: rgba(20, 184, 166, 0.14);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-info h3 { font-size: 20px; font-weight: 800; line-height: 1.1; }
+    .stat-info span { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+    /* Section Header */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 14px 0 10px;
+    }
+    .section-head h3 {
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    /* Buttons */
+    .btn {
+      border: none;
+      border-radius: 13px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.24);
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, #65a30d, #84cc16);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(101, 163, 13, 0.24);
+    }
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      color: var(--text-main);
+    }
+    .btn-danger {
+      background: rgba(220, 38, 38, 0.12);
+      color: var(--danger);
+    }
+    .btn-sm { padding: 6px 11px; font-size: 12px; border-radius: 10px; }
+    .btn-block { width: 100%; }
+
+    /* Cards List */
+    .cards-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cover-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      background: #e2e8f0;
+    }
+
+    .avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar-img {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 2px solid #fff;
+      background: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    .meta-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .meta-chip {
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      padding: 4px 9px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+    }
+
+    .note-box {
+      margin-top: 9px;
+      padding: 8px 11px;
+      border-radius: 11px;
+      background: rgba(254, 243, 199, 0.58);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      font-size: 12px;
+      color: #78350f;
+    }
+
+    .attendance-box {
+      margin-top: 8px;
+      padding: 7px 11px;
+      border-radius: 11px;
+      background: rgba(209, 250, 229, 0.58);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-size: 12px;
+      color: #065f46;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 11px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(15, 23, 42, 0.06);
+      flex-wrap: wrap;
+    }
+
+    /* Bottom Liquid Glass Dock (5 Icons) */
+    .bottom-dock {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(26px) saturate(200%);
+      -webkit-backdrop-filter: blur(26px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 14px 36px rgba(15, 45, 35, 0.14), inset 0 1px 1px #fff;
+      border-radius: 26px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 7px 6px;
+      z-index: 50;
+    }
+
+    .dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 6px 2px;
+      border-radius: 18px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .dock-item.active {
+      background: linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(101, 163, 13, 0.14));
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* Side Drawer (More Menu) */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.28);
+      backdrop-filter: blur(4px);
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .side-drawer {
+      position: fixed;
+      top: 12px;
+      bottom: 12px;
+      left: 12px;
+      width: 285px;
+      max-width: 82vw;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid #fff;
+      border-radius: 28px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+      z-index: 70;
+      padding: 20px 16px;
+      transform: translateX(-115%);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .side-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.58);
+      color: var(--text-main);
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drawer-link:hover, .drawer-link.active {
+      background: rgba(20, 184, 166, 0.14);
+      color: var(--primary);
+      border-color: rgba(20, 184, 166, 0.3);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.36);
+      backdrop-filter: blur(6px);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      width: 100%;
+      max-width: 440px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(28px);
+      border: 1px solid #fff;
+      border-radius: 26px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+    }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--text-main);
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 13px;
+      border-radius: 13px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(255, 255, 255, 0.88);
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus { border-color: var(--primary); }
+
+    .tabs-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: rgba(255, 255, 255, 0.55);
+      padding: 5px;
+      border-radius: 14px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 34px 18px;
+      border-radius: var(--radius-xl);
+    }
+    .empty-state p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(15, 23, 42, 0.92);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 100;
+      transition: transform 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="liquid-orb orb-1"></div>
+  <div class="liquid-orb orb-2"></div>
+  <div class="liquid-orb orb-3"></div>
+
+  <div id="toast" class="toast"></div>
+
+  <div class="app-shell" id="appShell">
+    <div id="ptrIndicator" class="ptr-indicator">
+      <i data-lucide="arrow-down" style="width:14px;height:14px;"></i>
+      <span>اسحب للتحديث الفوري</span>
+    </div>
+
+    <!-- Top Header -->
+    <header class="top-bar glass">
+      <div class="brand">
+        <div class="brand-logo"><img src="./logo.png" alt="Logo" /></div>
+        <div class="brand-text">
+          <h1>Next Generation</h1>
+          <span><i class="sync-dot"></i> متصل ومزامن تلقائياً</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-pill" onclick="refreshData(true)" title="تحديث البيانات الآن">
+          <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+        </button>
+        <button id="authHeaderBtn" class="icon-pill" onclick="openLoginModal()">
+          <i data-lucide="log-in" style="width:14px;height:14px;"></i>
+          <span>دخول</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- User Role Status Strip -->
+    <div class="role-strip">
+      <div id="roleInfoText">مرحباً بك كزائر في الأكاديمية</div>
+      <span id="roleBadge" class="badge badge-teal">وضع الزائر</span>
+    </div>
+
+    <!-- Main Dynamic View Container -->
+    <main id="mainContent"></main>
+  </div>
+
+  <!-- Bottom Navigation Bar (5 Icons) -->
+  <nav class="bottom-dock">
+    <button class="dock-item active" data-view="home" onclick="navigate('home')">
+      <i data-lucide="home" style="width:20px;height:20px;"></i>
+      <span>الرئيسية</span>
+    </button>
+    <button class="dock-item" data-view="teams" onclick="navigate('teams')">
+      <i data-lucide="shield" style="width:20px;height:20px;"></i>
+      <span>الفرق</span>
+    </button>
+    <button class="dock-item" data-view="players" onclick="navigate('players')">
+      <i data-lucide="users" style="width:20px;height:20px;"></i>
+      <span>اللاعبين</span>
+    </button>
+    <button class="dock-item" data-view="schedule" onclick="navigate('schedule')">
+      <i data-lucide="calendar" style="width:20px;height:20px;"></i>
+      <span>المواعيد</span>
+    </button>
+    <button class="dock-item" data-view="more" onclick="toggleDrawer(true)">
+      <i data-lucide="layout-grid" style="width:20px;height:20px;"></i>
+      <span>المزيد</span>
+    </button>
+  </nav>
+
+  <!-- Side Drawer for Remaining Sheets & Executive Dashboard -->
+  <div id="drawerBackdrop" class="drawer-backdrop" onclick="toggleDrawer(false)"></div>
+  <aside id="sideDrawer" class="side-drawer">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div>
+        <h3 style="font-size:16px;font-weight:800;">أقسام الأكاديمية</h3>
+        <span style="font-size:11.5px;color:var(--text-muted);">باقي الشيتات والتحليلات</span>
+      </div>
+      <button class="icon-pill" onclick="toggleDrawer(false)">
+        <i data-lucide="x" style="width:16px;height:16px;"></i>
+      </button>
+    </div>
+
+    <div id="drawerLinksContainer"></div>
+
+    <div style="margin-top:auto;padding-top:14px;border-top:1px solid rgba(0,0,0,0.06);">
+      <button id="drawerAuthBtn" class="btn btn-primary btn-block" onclick="toggleDrawer(false); openLoginModal();">
+        <i data-lucide="key-round" style="width:16px;height:16px;"></i>
+        تسجيل الدخول / تغيير الحساب
+      </button>
+    </div>
+  </aside>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h3 style="font-size:17px;font-weight:800;">تسجيل الدخول للأكاديمية</h3>
+        <button class="icon-pill" onclick="closeModal('loginModal')"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+      </div>
+
+      <div class="tabs-row">
+        <button class="tab-btn active" id="tabParent" onclick="setLoginMode('parent')">ولي أمر / لاعب</button>
+        <button class="tab-btn" id="tabStaff" onclick="setLoginMode('staff')">مدرب / إدارة</button>
+      </div>
+
+      <div class="form-group">
+        <label>البريد الإلكتروني المسجل</label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="example@domain.com" dir="ltr" />
+      </div>
+
+      <div class="form-group" id="loginCodeGroup" style="display:none;">
+        <label>رمز الدخول (Login Code)</label>
+        <input type="password" id="loginCode" class="form-control" placeholder="أدخل الكود الخاص بك" dir="ltr" />
+      </div>
+
+      <p id="loginHintText" style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
+        يدخل ولي الأمر بالبريد الإلكتروني المسجل في شيت اللاعبين مباشرة بدون كود.
+      </p>
+
+      <div id="pendingAlertBox" style="display:none;margin-bottom:12px;padding:12px;border-radius:14px;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.4);font-size:12.5px;color:#92400e;line-height:1.6;"></div>
+
+      <button class="btn btn-primary btn-block" onclick="submitLogin()">دخول</button>
+
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.07);text-align:center;">
+        <span style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:6px;">لاعب جديد غير مسجل بعد؟</span>
+        <button class="btn btn-glass btn-sm btn-block" onclick="closeModal('loginModal'); navigate('admin');">
+          الذهاب لصفحة الإدارة وملء استمارة التسجيل
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRUD / Edit Modal -->
+  <div id="crudModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h3 id="crudModalTitle" style="font-size:16px;font-weight:800;">تعديل البيانات</h3>
+        <button class="icon-pill" onclick="closeModal('crudModal')"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+      </div>
+      <form id="crudForm" onsubmit="submitCrudForm(event)"></form>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // رابط النشر (Web App URL) الخاص بكود Google Apps Script
+    // =========================================================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxu25ziAU4Mkk7Fn_8ejg35SkuqLRJkQvoKhe7Mtgs3FqEpjMctbmAQq2xC064w8lU4Qw/exec';
+
+    let appState = {
+      currentView: 'home',
+      loginMode: 'parent',
+      scheduleFilter: 'all',
+      scheduleTeamFilter: 'all',
+      scheduleCoachFilter: 'all',
+      eduFilter: 'all',
+      eduMediaFilter: 'all',
+      teamSearch: '',
+      teamCoachFilter: 'all',
+      playerSearch: '',
+      playerTeamFilter: 'all',
+      playerNotesFilter: 'all',
+      privateSearch: '',
+      privateStatusFilter: 'all',
+      subStatusFilter: 'all',
+      subMonthFilter: 'all',
+      coachBranchFilter: 'all',
+      user: JSON.parse(localStorage.getItem('nxtgen_user') || 'null'),
+      data: null,
+      autoSyncTimer: null
+    };
+
+    const ROLE_LABELS = {
+      super_admin: { text: 'المدير العام (صلاحية كاملة)', badge: 'badge-lime' },
+      admin_staff: { text: 'فريق الإدارة', badge: 'badge-teal' },
+      coach: { text: 'مدرب معتمد', badge: 'badge-teal' },
+      parent: { text: 'ولي أمر لاعب', badge: 'badge-lime' },
+      guest: { text: 'وضع الزائر', badge: 'badge-amber' }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      setupPullToRefresh();
+      updateAuthUI();
+      refreshData(false);
+      appState.autoSyncTimer = setInterval(() => refreshData(false, true), 20000);
+    });
+
+    function setupPullToRefresh() {
+      let startY = 0;
+      const ptr = document.getElementById('ptrIndicator');
+      window.addEventListener('touchstart', e => {
+        if (window.scrollY === 0) startY = e.touches[0].clientY;
+      }, { passive: true });
+      window.addEventListener('touchmove', e => {
+        if (window.scrollY === 0 && startY > 0) {
+          const diff = e.touches[0].clientY - startY;
+          if (diff > 20 && diff < 120) {
+            ptr.style.height = Math.min(diff * 0.45, 38) + 'px';
+          }
+        }
+      }, { passive: true });
+      window.addEventListener('touchend', () => {
+        if (parseInt(ptr.style.height || '0') >= 32) {
+          refreshData(true);
+        }
+        ptr.style.height = '0px';
+        startY = 0;
+      });
+    }
+
+    function renderSkeletons(count = 3) {
+      let html = '';
+      for (let i = 0; i < count; i++) {
+        html += `
+          <div class="skeleton-card">
+            <div class="skeleton-line" style="width:55%;height:16px;"></div>
+            <div class="skeleton-line" style="width:85%;"></div>
+            <div class="skeleton-line" style="width:40%;margin-bottom:0;"></div>
+          </div>`;
+      }
+      return html;
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3600);
+    }
+
+    function updateAuthUI() {
+      const u = appState.user;
+      const roleInfo = document.getElementById('roleInfoText');
+      const roleBadge = document.getElementById('roleBadge');
+      const headerBtn = document.getElementById('authHeaderBtn');
+      const drawerBtn = document.getElementById('drawerAuthBtn');
+
+      if (u && u.role && u.role !== 'guest') {
+        const meta = ROLE_LABELS[u.role] || ROLE_LABELS.guest;
+        roleInfo.innerHTML = `أهلاً، <strong>${escapeHtml(u.name || '')}</strong>`;
+        roleBadge.className = `badge ${meta.badge}`;
+        roleBadge.textContent = meta.text;
+        headerBtn.innerHTML = `<i data-lucide="log-out" style="width:14px;height:14px;"></i><span>خروج</span>`;
+        headerBtn.onclick = logoutUser;
+        drawerBtn.innerHTML = `<i data-lucide="log-out" style="width:16px;height:16px;"></i> تسجيل الخروج (${escapeHtml(u.name || '')})`;
+        drawerBtn.onclick = () => { toggleDrawer(false); logoutUser(); };
+      } else {
+        roleInfo.textContent = 'تصفح كزائر (سجل دخولك لعرض بياناتك)';
+        roleBadge.className = 'badge badge-amber';
+        roleBadge.textContent = 'وضع الزائر';
+        headerBtn.innerHTML = `<i data-lucide="log-in" style="width:14px;height:14px;"></i><span>دخول</span>`;
+        headerBtn.onclick = openLoginModal;
+        drawerBtn.innerHTML = `<i data-lucide="key-round" style="width:16px;height:16px;"></i> تسجيل الدخول للحساب`;
+        drawerBtn.onclick = () => { toggleDrawer(false); openLoginModal(); };
+      }
+      renderDrawerLinks();
+      lucide.createIcons();
+    }
+
+    function renderDrawerLinks() {
+      const role = appState.user?.role || 'guest';
+      const isSuperAdmin = role === 'super_admin';
+      const isStaff = ['super_admin', 'admin_staff', 'coach'].includes(role);
+      const isParent = role === 'parent';
+
+      const items = [
+        { id: 'dashboard', label: 'لوحة تحكم المدير العام (KPIs)', icon: 'bar-chart-3', visible: isSuperAdmin, highlight: true },
+        { id: 'private', label: 'حصص البرايفت (Private)', icon: 'sparkles', visible: true },
+        { id: 'education', label: 'المحتوى التعليمي', icon: 'play-circle', visible: true },
+        { id: 'coaches', label: 'المدربون', icon: 'award', visible: true },
+        { id: 'subscriptions', label: 'الاشتراكات والمدفوعات', icon: 'credit-card', visible: isStaff || isParent },
+        { id: 'admin', label: 'الإدارة وتسجيل اللاعبين', icon: 'building-2', visible: true },
+        { id: 'responses', label: 'طلبات التسجيل الجديدة', icon: 'file-check', visible: ['super_admin', 'admin_staff'].includes(role) }
+      ];
+
+      const container = document.getElementById('drawerLinksContainer');
+      container.innerHTML = items.filter(i => i.visible).map(item => `
+        <button class="drawer-link ${appState.currentView === item.id ? 'active' : ''}"
+                style="${item.highlight ? 'background:linear-gradient(135deg, rgba(15,118,110,0.16), rgba(101,163,13,0.16));border-color:rgba(15,118,110,0.35);' : ''}"
+                onclick="toggleDrawer(false); navigate('${item.id}')">
+          <span style="display:flex;align-items:center;gap:10px;">
+            <i data-lucide="${item.icon}" style="width:18px;height:18px;color:var(--primary);"></i>
+            ${item.label}
+          </span>
+          <i data-lucide="chevron-left" style="width:16px;height:16px;opacity:0.5;"></i>
+        </button>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function requestJsonp(baseUrl) {
+      return new Promise((resolve, reject) => {
+        const cbName = 'nxtgen_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error('انتهت مهلة الاتصال بالخادم (Timeout)'));
+        }, 12000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          if (script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+        }
+
+        window[cbName] = function(data) {
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = function() {
+          cleanup();
+          reject(new Error('فشل تحميل السكربت من Google Apps Script'));
+        };
+
+        const sep = baseUrl.includes('?') ? '&' : '?';
+        script.src = baseUrl + sep + 'callback=' + cbName;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function refreshData(manual = false, silent = false) {
+      if (!silent) {
+        document.getElementById('mainContent').innerHTML = renderSkeletons(3);
+      }
+      try {
+        const u = appState.user || {};
+        const url = new URL(API_URL);
+        url.searchParams.set('action', 'getData');
+        if (u.email) url.searchParams.set('authEmail', u.email);
+        if (u.code) url.searchParams.set('authCode', u.code);
+
+        let json;
+        try {
+          json = await requestJsonp(url.toString());
+        } catch (jsonpErr) {
+          const res = await fetch(url.toString(), { cache: 'no-store' });
+          json = await res.json();
+        }
+        if (json.status === 'success') {
+          appState.data = json;
+          renderCurrentView();
+          if (manual) showToast('تم تحديث البيانات والتحليلات من الشيت بنجاح');
+        } else {
+          if (!silent) {
+            showToast(json.message || 'تعذر تحميل البيانات');
+            document.getElementById('mainContent').innerHTML = `
+              <div class="glass-card empty-state">
+                <i data-lucide="alert-circle" style="width:36px;height:36px;color:var(--danger);"></i>
+                <h3 style="margin-top:8px;">تنبيه من السيرفر</h3>
+                <p>${escapeHtml(json.message || 'تعذر تحميل البيانات من الشيت')}</p>
+                <button class="btn btn-primary" style="margin-top:12px;" onclick="refreshData(true)">إعادة المحاولة</button>
+              </div>`;
+            lucide.createIcons();
+          }
+        }
+      } catch (err) {
+        if (!silent) {
+          document.getElementById('mainContent').innerHTML = `
+            <div class="glass-card empty-state">
+              <i data-lucide="wifi-off" style="width:36px;height:36px;color:var(--danger);"></i>
+              <h3 style="margin-top:8px;">تعذر الاتصال بقاعدة البيانات</h3>
+              <p>تأكد من نشر Google Apps Script كـ Web App بصلاحية <strong>Anyone</strong> ونسخ الرابط الصحيح.</p>
+              <p style="font-size:11.5px;color:var(--danger);margin-top:6px;" dir="ltr">${escapeHtml(err && err.message ? err.message : String(err))}</p>
+              <button class="btn btn-primary" style="margin-top:12px;" onclick="refreshData(true)">إعادة المحاولة</button>
+            </div>`;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    function navigate(view) {
+      appState.currentView = view;
+      document.querySelectorAll('.dock-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+      renderDrawerLinks();
+      renderCurrentView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleDrawer(open) {
+      document.getElementById('sideDrawer').classList.toggle('open', open);
+      document.getElementById('drawerBackdrop').classList.toggle('open', open);
+    }
+
+    function openLoginModal() {
+      document.getElementById('pendingAlertBox').style.display = 'none';
+      document.getElementById('loginModal').classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function setLoginMode(mode) {
+      appState.loginMode = mode;
+      document.getElementById('pendingAlertBox').style.display = 'none';
+      document.getElementById('tabParent').classList.toggle('active', mode === 'parent');
+      document.getElementById('tabStaff').classList.toggle('active', mode === 'staff');
+      document.getElementById('loginCodeGroup').style.display = mode === 'staff' ? 'block' : 'none';
+      document.getElementById('loginHintText').textContent = mode === 'parent'
+        ? 'يدخل ولي الأمر بالبريد الإلكتروني المسجل في شيت اللاعبين مباشرة بدون كود.'
+        : 'يدخل المدربون والإدارة بالبريد الإلكتروني مع رمز الدخول (Login Code).';
+    }
+
+    async function submitLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const code = document.getElementById('loginCode').value.trim();
+      const pendingBox = document.getElementById('pendingAlertBox');
+      pendingBox.style.display = 'none';
+
+      if (!email) {
+        showToast('يرجى إدخال البريد الإلكتروني');
+        return;
+      }
+      if (appState.loginMode === 'staff' && !code) {
+        showToast('يرجى إدخال رمز الدخول (Login Code)');
+        return;
+      }
+
+      try {
+        const url = new URL(API_URL);
+        url.searchParams.set('action', 'login');
+        url.searchParams.set('email', email);
+        if (code) url.searchParams.set('code', code);
+
+        let json;
+        try {
+          json = await requestJsonp(url.toString());
+        } catch (jsonpErr) {
+          const res = await fetch(url.toString(), { cache: 'no-store' });
+          json = await res.json();
+        }
+
+        if (json.status === 'success') {
+          appState.user = { ...json.user, code: code };
+          localStorage.setItem('nxtgen_user', JSON.stringify(appState.user));
+          closeModal('loginModal');
+          updateAuthUI();
+          showToast(`مرحباً بك ${json.user.name}`);
+          refreshData(false);
+        } else if (json.status === 'pending') {
+          pendingBox.innerHTML = `<strong><i data-lucide="hourglass" style="width:14px;height:14px;vertical-align:middle;"></i> طلبك قيد التفعيل:</strong><br>${escapeHtml(json.message)}`;
+          pendingBox.style.display = 'block';
+          lucide.createIcons();
+        } else {
+          showToast(json.message || 'بيانات الدخول غير صحيحة');
+        }
+      } catch (e) {
+        showToast('حدث خطأ أثناء تسجيل الدخول');
+      }
+    }
+
+    function logoutUser() {
+      appState.user = null;
+      localStorage.removeItem('nxtgen_user');
+      updateAuthUI();
+      showToast('تم تسجيل الخروج');
+      navigate('home');
+      refreshData(false);
+    }
+
+    function downloadSessionICS(title, dateStr, timeStr, locationStr) {
+      try {
+        const cleanDate = String(dateStr || '').replace(/[^0-9]/g, '');
+        const cleanTime = String(timeStr || '17:00:00').replace(/[^0-9]/g, '').padEnd(6, '0').slice(0, 6);
+        if (cleanDate.length !== 8) {
+          showToast('صيغة التاريخ غير مكتملة لإضافتها للتقويم');
+          return;
+        }
+        const startDT = `${cleanDate}T${cleanTime}`;
+        const endHour = String(Math.min(23, parseInt(cleanTime.slice(0, 2), 10) + 1)).padStart(2, '0');
+        const endDT = `${cleanDate}T${endHour}${cleanTime.slice(2)}`;
+
+        const icsContent = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//Next Generation Tennis Academy//AR',
+          'BEGIN:VEVENT',
+          `DTSTART:${startDT}`,
+          `DTEND:${endDT}`,
+          `SUMMARY:${title} - NXT Gen Tennis`,
+          `LOCATION:${locationStr}`,
+          'DESCRIPTION:موعد تمرين أكاديمية Next Generation Tennis Academy',
+          'BEGIN:VALARM',
+          'TRIGGER:-PT60M',
+          'ACTION:DISPLAY',
+          'DESCRIPTION:تذكير بموعد التمرين بعد ساعة',
+          'END:VALARM',
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `NXT_Gen_${cleanDate}.ics`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('تم تجهيز ملف التقويم بالتذكير التلقائي');
+      } catch (e) {
+        showToast('تعذر إنشاء حدث التقويم');
+      }
+    }
+
+    async function confirmAttendance(target, rowIndex, statusText) {
+      const u = appState.user || {};
+      const playerName = u.players && u.players[0] ? u.players[0]['Player_Name'] : '';
+      try {
+        showToast('جاري إرسال ردك للمدرب...');
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'attendance',
+            authEmail: u.email || '',
+            target,
+            rowIndex,
+            statusText,
+            playerName
+          })
+        });
+        const json = await res.json();
+        showToast(json.message || 'تم التسجيل');
+        if (json.status === 'success') refreshData(false, true);
+      } catch (e) {
+        showToast('تعذر إرسال الحالة');
+      }
+    }
+
+    // =========================================================================
+    // VIEW RENDERERS
+    // =========================================================================
+    function renderCurrentView() {
+      if (!appState.data) return;
+      const view = appState.currentView;
+      const container = document.getElementById('mainContent');
+
+      const renderers = {
+        home: renderHomeView,
+        dashboard: renderExecutiveDashboardView,
+        teams: renderTeamsView,
+        players: renderPlayersView,
+        schedule: renderScheduleView,
+        private: renderPrivateView,
+        education: renderEducationView,
+        coaches: renderCoachesView,
+        subscriptions: renderSubscriptionsView,
+        admin: renderAdminView,
+        responses: renderResponsesView
+      };
+
+      container.innerHTML = (renderers[view] || renderHomeView)();
+      lucide.createIcons();
+    }
+
+    function renderHomeView() {
+      const { stats, sheets, registrationFormUrl } = appState.data;
+      const role = appState.user?.role || 'guest';
+      const isGuest = role === 'guest';
+      const isSuperAdmin = role === 'super_admin';
+      const isAdmin = ['super_admin', 'admin_staff'].includes(role);
+      const todayISO = new Date().toISOString().slice(0, 10);
+
+      let html = `
+        <div class="hero-card">
+          <h2>Next Generation Tennis Academy</h2>
+          <p>منصة إدارة ومتابعة تدريبات التنس واللياقة — جميع الجداول والفرق محدثة لحظياً.</p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            ${isSuperAdmin ? `
+              <button class="btn btn-accent btn-sm" onclick="navigate('dashboard')">
+                <i data-lucide="bar-chart-3" style="width:15px;height:15px;"></i> فتح لوحة تحكم المدير العام (التحليلات الشاملة)
+              </button>` : ''}
+            ${isGuest ? `
+              <button class="btn btn-glass btn-sm" onclick="openLoginModal()">تسجيل الدخول</button>
+              ${registrationFormUrl ? `<a href="${registrationFormUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-sm" style="text-decoration:none;">تسجيل لاعب جديد</a>` : ''}
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      // Highlight Today's Training Session
+      if (!isGuest) {
+        const todaySessions = sheets.schedule.filter(s => String(s['اليوم']).trim() === todayISO);
+        const todayPrivate = sheets.private.filter(p => String(p['اليوم']).trim() === todayISO);
+        if (todaySessions.length > 0 || todayPrivate.length > 0) {
+          html += `
+            <div class="today-banner">
+              <div style="display:flex;align-items:center;gap:7px;font-weight:800;color:#365314;margin-bottom:6px;">
+                <i data-lucide="bell-ring" style="width:17px;height:17px;"></i>
+                <span>تمرين اليوم (${todayISO})</span>
+              </div>
+              ${todaySessions.map(s => `<div style="font-size:13px;font-weight:700;">• ${escapeHtml(s['عنوان التمرين / الحصة'])} — الساعة ${escapeHtml(s['التوقيت'])} (${escapeHtml(s['الملعب'])})</div>`).join('')}
+              ${todayPrivate.map(p => `<div style="font-size:13px;font-weight:700;">• حصة Private (${escapeHtml(p['اسم اللاعب'])}) — الساعة ${escapeHtml(p['التوقيت'])} (${escapeHtml(p['الملعب'])})</div>`).join('')}
+            </div>`;
+        }
+      }
+
+      if (isAdmin) {
+        html += `
+          <div class="stats-grid">
+            <div class="stat-box glass-card" onclick="navigate('subscriptions')" style="cursor:pointer;">
+              <div class="stat-icon" style="background:rgba(220,38,38,0.12);color:var(--danger);"><i data-lucide="alert-circle"></i></div>
+              <div class="stat-info"><h3>${stats.unpaidCount}</h3><span>اشتراكات غير مسددة</span></div>
+            </div>
+            <div class="stat-box glass-card" onclick="navigate('responses')" style="cursor:pointer;">
+              <div class="stat-icon" style="background:rgba(101,163,13,0.16);color:#4d7c0f;"><i data-lucide="user-plus"></i></div>
+              <div class="stat-info"><h3>${stats.pendingResponsesCount}</h3><span>طلبات تسجيل جديدة</span></div>
+            </div>
+          </div>`;
+      }
+
+      html += `
+        <div class="stats-grid">
+          <div class="stat-box glass-card" onclick="navigate('teams')" style="cursor:pointer;">
+            <div class="stat-icon"><i data-lucide="shield"></i></div>
+            <div class="stat-info"><h3>${stats.teamsCount}</h3><span>الفرق التدريبية</span></div>
+          </div>
+          <div class="stat-box glass-card" onclick="navigate('coaches')" style="cursor:pointer;">
+            <div class="stat-icon"><i data-lucide="award"></i></div>
+            <div class="stat-info"><h3>${stats.coachesCount}</h3><span>المدربون</span></div>
+          </div>
+          <div class="stat-box glass-card" onclick="navigate('education')" style="cursor:pointer;">
+            <div class="stat-icon"><i data-lucide="play-circle"></i></div>
+            <div class="stat-info"><h3>${stats.eduCount}</h3><span>المحتوى التعليمي</span></div>
+          </div>
+          <div class="stat-box glass-card" onclick="navigate('${isGuest ? 'admin' : 'private'}')" style="cursor:pointer;">
+            <div class="stat-icon"><i data-lucide="${isGuest ? 'building-2' : 'sparkles'}"></i></div>
+            <div class="stat-info"><h3>${isGuest ? 'تواصل' : stats.privateCount}</h3><span>${isGuest ? 'الإدارة والتسجيل' : 'حصص البرايفت'}</span></div>
+          </div>
+        </div>
+      `;
+
+      if (!isGuest && sheets.schedule.length > 0) {
+        const nextSessions = sheets.schedule.slice(0, 3);
+        html += `
+          <div class="section-head">
+            <h3><i data-lucide="clock" style="width:18px;height:18px;color:var(--primary);"></i> أقرب مواعيد التمارين</h3>
+            <button class="btn btn-glass btn-sm" onclick="navigate('schedule')">عرض الكل</button>
+          </div>
+          <div class="cards-stack">
+            ${nextSessions.map(s => `
+              <div class="glass-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <strong>${escapeHtml(s['عنوان التمرين / الحصة'])}</strong>
+                  <span class="badge badge-teal">${escapeHtml(s['معرف الفريق'])}</span>
+                </div>
+                <div class="meta-list">
+                  <span class="meta-chip"><i data-lucide="calendar" style="width:13px;height:13px;"></i> ${escapeHtml(s['اليوم'])}</span>
+                  <span class="meta-chip"><i data-lucide="clock" style="width:13px;height:13px;"></i> ${escapeHtml(s['التوقيت'])}</span>
+                  <span class="meta-chip"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> ${escapeHtml(s['الملعب'])}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    // =========================================================================
+    // SUPER ADMIN EXECUTIVE DASHBOARD (لوحة تحكم المدير العام الشاملة)
+    // =========================================================================
+    function renderExecutiveDashboardView() {
+      const role = appState.user?.role || 'guest';
+      const ea = appState.data?.executiveAnalytics;
+
+      if (role !== 'super_admin' || !ea) {
+        return `
+          <div class="glass-card empty-state">
+            <i data-lucide="shield-alert" style="width:38px;height:38px;color:var(--danger);"></i>
+            <h3 style="margin-top:8px;">صفحة مخصصة للمدير العام فقط</h3>
+            <p>هذه اللوحة التحليلية متاحة حصرياً للإدارة العليا (ADM-01).</p>
+          </div>`;
+      }
+
+      const { period, overview, registrations, subscriptions, attendance, privateAnalytics, teamStats, coachStats } = ea;
+
+      // Growth badges
+      const privTrendUp = privateAnalytics.growthPct >= 0;
+      const regTrendUp = registrations.diffFromLastMonth >= 0;
+
+      // Donut gradient for Subscriptions Collection Rate
+      const subDeg = Math.round((subscriptions.activeCollectionRate / 100) * 360);
+      const subDonutBg = `conic-gradient(#65a30d 0deg ${subDeg}deg, rgba(220,38,38,0.22) ${subDeg}deg 360deg)`;
+
+      // Donut gradient for Attendance Rate
+      const attDeg = Math.round((attendance.attendanceRate / 100) * 360);
+      const attDonutBg = `conic-gradient(#0f766e 0deg ${attDeg}deg, rgba(239,68,68,0.28) ${attDeg}deg 360deg)`;
+
+      return `
+        <!-- Executive Header -->
+        <div class="exec-hero">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span class="badge" style="background:rgba(255,255,255,0.16);color:#fff;">Executive Dashboard</span>
+            <span style="font-size:11.5px;opacity:0.85;">شهر ${escapeHtml(period.currMonthAr)} (${escapeHtml(period.currYM)})</span>
+          </div>
+          <h2 style="font-size:18px;font-weight:800;">لوحة متابعة أداء الأكاديمية الشاملة</h2>
+          <p style="font-size:12px;opacity:0.88;margin-top:3px;">تحليل لحظي للاشتراكات، الحضور والغياب، نمو البرايفت، وأداء الفرق مقارنة بالشهر الماضي.</p>
+
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px;text-align:center;">
+            <div style="background:rgba(255,255,255,0.12);padding:8px 4px;border-radius:12px;">
+              <strong style="font-size:17px;display:block;">${overview.totalPlayers}</strong>
+              <span style="font-size:10.5px;opacity:0.85;">اللاعبين</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.12);padding:8px 4px;border-radius:12px;">
+              <strong style="font-size:17px;display:block;">${overview.totalTeams}</strong>
+              <span style="font-size:10.5px;opacity:0.85;">الفرق</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.12);padding:8px 4px;border-radius:12px;">
+              <strong style="font-size:17px;display:block;">${overview.totalCoaches}</strong>
+              <span style="font-size:10.5px;opacity:0.85;">المدربين</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.12);padding:8px 4px;border-radius:12px;">
+              <strong style="font-size:17px;display:block;">${overview.totalScheduleSessions + overview.totalPrivateSessions}</strong>
+              <span style="font-size:10.5px;opacity:0.85;">إجمالي الحصص</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. Top 4 KPIs: New Registrations + Private MoM Growth + Paid + Unpaid -->
+        <div class="kpi-grid-2">
+          <!-- New Subscriptions / Registrations -->
+          <div class="kpi-card" onclick="navigate('responses')" style="cursor:pointer;">
+            <div class="kpi-top">
+              <span class="kpi-label">الاشتراكات الجديدة</span>
+              <i data-lucide="user-plus" style="width:16px;height:16px;color:var(--primary);"></i>
+            </div>
+            <div class="kpi-val">${registrations.totalResponses}</div>
+            <div class="kpi-sub" style="color:${registrations.pendingApprovalCount > 0 ? '#b45309' : '#0f766e'};">
+              ${registrations.pendingApprovalCount} بانتظار الاعتماد • (${regTrendUp ? '+' : ''}${registrations.diffFromLastMonth} عن الشهر الماضي)
+            </div>
+          </div>
+
+          <!-- Private Sessions Growth MoM -->
+          <div class="kpi-card" onclick="navigate('private')" style="cursor:pointer;">
+            <div class="kpi-top">
+              <span class="kpi-label">نمو حصص البرايفت</span>
+              <i data-lucide="sparkles" style="width:16px;height:16px;color:#65a30d;"></i>
+            </div>
+            <div class="kpi-val" style="color:${privTrendUp ? '#4d7c0f' : '#dc2626'};">
+              ${privTrendUp ? '+' : ''}${privateAnalytics.growthPct}%
+            </div>
+            <div class="kpi-sub" style="color:var(--text-muted);">
+              هذا الشهر: ${privateAnalytics.currMonthCount} | الماضي: ${privateAnalytics.prevMonthCount}
+            </div>
+          </div>
+
+          <!-- Paid Players in Active Month -->
+          <div class="kpi-card" onclick="navigate('subscriptions')" style="cursor:pointer;">
+            <div class="kpi-top">
+              <span class="kpi-label">مسددون (${escapeHtml(subscriptions.activeMonthName)})</span>
+              <i data-lucide="check-circle-2" style="width:16px;height:16px;color:#65a30d;"></i>
+            </div>
+            <div class="kpi-val" style="color:#4d7c0f;">${subscriptions.activePaidCount} <small style="font-size:12px;color:var(--text-muted);">لاعب</small></div>
+            <div class="kpi-sub" style="color:#4d7c0f;">نسبة التحصيل ${subscriptions.activeCollectionRate}%</div>
+          </div>
+
+          <!-- Unpaid Players in Active Month -->
+          <div class="kpi-card" onclick="navigate('subscriptions')" style="cursor:pointer;">
+            <div class="kpi-top">
+              <span class="kpi-label">غير مسددين (${escapeHtml(subscriptions.activeMonthName)})</span>
+              <i data-lucide="alert-triangle" style="width:16px;height:16px;color:var(--danger);"></i>
+            </div>
+            <div class="kpi-val" style="color:var(--danger);">${subscriptions.activeUnpaidCount} <small style="font-size:12px;color:var(--text-muted);">لاعب</small></div>
+            <div class="kpi-sub" style="color:var(--danger);">إجمالي المتأخرات: ${subscriptions.totalUnpaidAll}</div>
+          </div>
+        </div>
+
+        <!-- 2. Subscriptions Financial & Collection Card -->
+        <div class="section-head">
+          <h3><i data-lucide="wallet" style="width:18px;height:18px;color:var(--primary);"></i> تحليل الاشتراكات والتحصيل الشهري</h3>
+        </div>
+        <div class="glass-card" style="margin-bottom:14px;">
+          <div class="donut-wrap">
+            <div class="donut-ring" style="background:${subDonutBg};">
+              <div class="donut-hole">
+                <span>${subscriptions.activeCollectionRate}%</span>
+                <small style="font-size:9px;color:var(--text-muted);font-weight:600;">تحصيل</small>
+              </div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:800;margin-bottom:4px;">حالة اشتراكات شهر (${escapeHtml(subscriptions.activeMonthName)})</div>
+              <div style="font-size:12px;color:#4d7c0f;font-weight:700;">✓ دفع الاشتراك: ${subscriptions.activePaidCount} من أصل ${subscriptions.activeTotalCount}</div>
+              <div style="font-size:12px;color:var(--danger);font-weight:700;">✗ لم يدفع بعد: ${subscriptions.activeUnpaidCount} لاعب</div>
+              ${subscriptions.unpaidPlayersList.length > 0 ? `
+                <div style="margin-top:7px;padding:6px 9px;border-radius:10px;background:rgba(220,38,38,0.08);font-size:11.5px;color:#991b1b;">
+                  <strong>أسماء غير المسددين:</strong> ${subscriptions.unpaidPlayersList.map(u => escapeHtml(u.name)).join('، ')}
+                </div>` : ''}
+            </div>
+          </div>
+
+          ${subscriptions.monthsBreakdown.length > 1 ? `
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.06);">
+              <div style="font-size:12px;font-weight:800;margin-bottom:6px;color:var(--text-muted);">مقارنة التحصيل عبر الشهور المسجلة:</div>
+              ${subscriptions.monthsBreakdown.map(m => `
+                <div style="margin-bottom:7px;">
+                  <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;">
+                    <span>شهر ${escapeHtml(m.month)}</span>
+                    <span>${m.paid}/${m.total} (${m.collectionRate}%)</span>
+                  </div>
+                  <div class="prog-track">
+                    <div class="prog-fill" style="width:${m.collectionRate}%;background:linear-gradient(90deg,#0f766e,#65a30d);"></div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>` : ''}
+        </div>
+
+        <!-- 3. Overall Attendance & Absence Analytics -->
+        <div class="section-head">
+          <h3><i data-lucide="user-check" style="width:18px;height:18px;color:var(--primary);"></i> مؤشر الحضور والغياب العام</h3>
+        </div>
+        <div class="glass-card" style="margin-bottom:14px;">
+          <div class="donut-wrap">
+            <div class="donut-ring" style="background:${attDonutBg};">
+              <div class="donut-hole">
+                <span>${attendance.attendanceRate}%</span>
+                <small style="font-size:9px;color:var(--text-muted);font-weight:600;">حضور</small>
+              </div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:800;margin-bottom:4px;">ملخص التزام اللاعبين بالتمارين</div>
+              <div style="font-size:12px;color:#0f766e;font-weight:700;">• تأكيدات الحضور: ${attendance.presentCount} (${attendance.attendanceRate}%)</div>
+              <div style="font-size:12px;color:var(--danger);font-weight:700;">• حالات الغياب / الاعتذار: ${attendance.absentCount} (${attendance.absenceRate}%)</div>
+              <div style="font-size:11.5px;color:var(--text-muted);margin-top:3px;">• حصص بانتظار تأكيد الأولياء: ${attendance.unconfirmedSessionsCount} حصة</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Team-by-Team Attendance & MoM Comparison -->
+        <div class="section-head">
+          <h3><i data-lucide="trending-up" style="width:18px;height:18px;color:var(--primary);"></i> أداء الفرق والحضور مقارنة بالشهر الماضي</h3>
+        </div>
+        <div style="margin-bottom:14px;">
+          ${teamStats.map(ts => {
+            const diffPositive = ts.attDiff >= 0;
+            const sessPositive = ts.sessionsDiff >= 0;
+            return `
+              <div class="comp-row">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div>
+                    <strong style="font-size:14px;">${escapeHtml(ts.teamName)}</strong>
+                    <span style="font-size:11px;color:var(--text-muted);display:block;">المدرب: ${escapeHtml(ts.coach)} • ${ts.playersCount} لاعب</span>
+                  </div>
+                  <span class="badge ${diffPositive ? 'badge-lime' : 'badge-red'}">
+                    ${diffPositive ? '▲' : '▼'} ${Math.abs(ts.attDiff)}% عن الشهر الماضي
+                  </span>
+                </div>
+
+                <div class="prog-track" style="margin-top:8px;">
+                  <div class="prog-fill" style="width:${ts.currAttRate}%;background:${diffPositive ? '#0f766e' : '#d97706'};"></div>
+                </div>
+
+                <div class="comp-grid">
+                  <div class="comp-cell">
+                    <small>حضور الشهر الحالي</small>
+                    <strong style="color:#0f766e;">${ts.currAttRate}%</strong>
+                  </div>
+                  <div class="comp-cell">
+                    <small>حضور الشهر الماضي</small>
+                    <strong>${ts.prevAttRate}%</strong>
+                  </div>
+                  <div class="comp-cell">
+                    <small>الحصص (حالي / ماضي)</small>
+                    <strong style="color:${sessPositive ? '#4d7c0f' : '#b45309'};">${ts.currMonthSessions} / ${ts.prevMonthSessions}</strong>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- 5. Coach Workload & Efficiency -->
+        <div class="section-head">
+          <h3><i data-lucide="award" style="width:18px;height:18px;color:var(--primary);"></i> توزيع الأحمال التدريبية للمدربين</h3>
+        </div>
+        <div class="glass-card">
+          ${coachStats.map(c => `
+            <div style="padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <strong style="font-size:13.5px;">${escapeHtml(c.name)}</strong>
+                <span style="font-size:11px;color:var(--text-muted);display:block;">فرع ${escapeHtml(c.branch)} • جماعي: ${c.groupSessions} | Private: ${c.privateSessions}</span>
+              </div>
+              <span class="badge badge-teal">${c.totalSessions} حصة</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function resetTeamFilters() {
+      appState.teamSearch = '';
+      appState.teamCoachFilter = 'all';
+      renderCurrentView();
+    }
+
+    function renderTeamsView() {
+      const rawTeams = appState.data.sheets.teams || [];
+      const coachesList = ['all', ...new Set(rawTeams.map(t => String(t['اسم المدرب'] || '').trim()).filter(Boolean))];
+      const q = appState.teamSearch.trim().toLowerCase();
+
+      const teams = rawTeams.filter(t => {
+        const coachMatch = appState.teamCoachFilter === 'all' || String(t['اسم المدرب'] || '').trim() === appState.teamCoachFilter;
+        const textMatch = !q ||
+          String(t['اسم الفريق / الفئة'] || '').toLowerCase().includes(q) ||
+          String(t['معرف الفريق'] || '').toLowerCase().includes(q) ||
+          String(t['الفئة العمرية / المستوى'] || '').toLowerCase().includes(q);
+        return coachMatch && textMatch;
+      });
+
+      const players = appState.data.sheets.players || [];
+      const role = appState.user?.role || 'guest';
+      const canEdit = ['super_admin', 'admin_staff'].includes(role);
+      const canSeeTeamPlayers = ['super_admin', 'admin_staff', 'coach'].includes(role);
+      const hasActiveTeamFilter = q || appState.teamCoachFilter !== 'all';
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="shield" style="width:19px;height:19px;color:var(--primary);"></i> الفرق التدريبية (${teams.length})</h3>
+          ${canEdit ? `<button class="btn btn-primary btn-sm" onclick="openAddTeamModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة فريق</button>` : ''}
+        </div>
+
+        <div class="glass-card" style="padding:12px;margin-bottom:12px;">
+          <input type="text" class="form-control" placeholder="بحث باسم الفريق أو الكود..." value="${escapeHtml(appState.teamSearch)}"
+                 oninput="appState.teamSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
+          <div class="filter-row" style="margin-bottom:0;">
+            ${coachesList.map(c => `
+              <button class="filter-chip ${appState.teamCoachFilter === c ? 'active' : ''}"
+                      onclick="appState.teamCoachFilter = '${escapeHtml(c)}'; renderCurrentView();">
+                ${c === 'all' ? 'كل المدربين' : escapeHtml(c)}
+              </button>
+            `).join('')}
+            ${hasActiveTeamFilter ? `<button class="filter-chip" style="color:var(--danger);" onclick="resetTeamFilters()">إعادة ضبط</button>` : ''}
+          </div>
+        </div>
+
+        <div class="cards-stack">
+          ${teams.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد فرق مطابقة للبحث أو الفلتر.</p></div>` : ''}
+          ${teams.map((t, idx) => {
+            const altCode = 'T-10' + (idx + 1);
+            const teamPlayers = canSeeTeamPlayers
+              ? players.filter(p => p['Team_ID'] === t['معرف الفريق'] || p['Team_ID'] === altCode)
+              : [];
+            return `
+              <div class="glass-card">
+                ${t['cover'] ? `<img src="${escapeHtml(t['cover'])}" class="cover-img" onerror="this.style.display='none'">` : ''}
+                <div style="display:flex;justify-content:space-between;align-items:start;">
+                  <div>
+                    <h4 style="font-size:15.5px;font-weight:800;">${escapeHtml(t['اسم الفريق / الفئة'])}</h4>
+                    <span style="font-size:12px;color:var(--primary);font-weight:700;">كود الفريق: ${escapeHtml(t['معرف الفريق'])}</span>
+                  </div>
+                  <span class="badge badge-lime">${escapeHtml(t['نوع الرياضة'])}</span>
+                </div>
+                <div class="meta-list">
+                  <span class="meta-chip"><i data-lucide="user-check" style="width:13px;height:13px;"></i> ${escapeHtml(t['اسم المدرب'])}</span>
+                  <span class="meta-chip"><i data-lucide="layers" style="width:13px;height:13px;"></i> ${escapeHtml(t['الفئة العمرية / المستوى'])}</span>
+                </div>
+                ${canSeeTeamPlayers ? `
+                  <div style="margin-top:9px;font-size:12px;color:var(--text-muted);">
+                    <strong>اللاعبون المنضمون (${teamPlayers.length}):</strong>
+                    ${teamPlayers.length ? teamPlayers.map(p => escapeHtml(p['Player_Name'])).join('، ') : 'لا يوجد لاعبون مسجلون حالياً'}
+                  </div>` : ''}
+                ${canEdit ? `
+                  <div class="card-actions">
+                    <button class="btn btn-glass btn-sm" onclick='openEditTeamModal(${JSON.stringify(t)})'>تعديل</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRow('teams', ${t._rowIndex})">حذف الفريق</button>
+                  </div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderPlayersView() {
+      const role = appState.user?.role || 'guest';
+      if (role === 'guest') {
+        return `
+          <div class="glass-card empty-state">
+            <i data-lucide="lock" style="width:38px;height:38px;color:var(--primary);"></i>
+            <h3 style="margin-top:8px;">بيانات اللاعبين محمية</h3>
+            <p>يرجى تسجيل الدخول بحساب ولي الأمر أو المدرب أو الإدارة للاطلاع على البيانات المصرح بها.</p>
+            <button class="btn btn-primary" style="margin-top:12px;" onclick="openLoginModal()">تسجيل الدخول</button>
+          </div>`;
+      }
+
+      const rawPlayers = appState.data.sheets.players || [];
+      const pTeams = ['all', ...new Set(rawPlayers.map(p => String(p['Team_ID'] || '').trim()).filter(Boolean))];
+      const pq = appState.playerSearch.trim().toLowerCase();
+
+      const players = rawPlayers.filter(p => {
+        const tMatch = appState.playerTeamFilter === 'all' || String(p['Team_ID'] || '').trim() === appState.playerTeamFilter;
+        const hasNote = Boolean(String(p['ملاحظات'] || '').trim());
+        const nMatch = appState.playerNotesFilter === 'all' ||
+          (appState.playerNotesFilter === 'with_notes' && hasNote) ||
+          (appState.playerNotesFilter === 'no_notes' && !hasNote);
+        const sMatch = !pq ||
+          String(p['Player_Name'] || '').toLowerCase().includes(pq) ||
+          String(p['Player_ID'] || '').toLowerCase().includes(pq) ||
+          String(p['Parent_Name'] || '').toLowerCase().includes(pq);
+        return tMatch && nMatch && sMatch;
+      });
+
+      const isSuperAdmin = role === 'super_admin';
+      const isAdmin = ['super_admin', 'admin_staff'].includes(role);
+      const isCoach = role === 'coach';
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="users" style="width:19px;height:19px;color:var(--primary);"></i> ${role === 'parent' ? 'بيانات اللاعب الخاص بك' : `قائمة اللاعبين (${players.length})`}</h3>
+          ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddPlayerModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة لاعب</button>` : ''}
+        </div>
+
+        ${role !== 'parent' ? `
+          <div class="glass-card" style="padding:12px;margin-bottom:12px;">
+            <input type="text" class="form-control" placeholder="بحث باسم اللاعب أو الكود أو ولي الأمر..." value="${escapeHtml(appState.playerSearch)}"
+                   oninput="appState.playerSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
+            <div class="filter-row">
+              ${pTeams.map(pt => `
+                <button class="filter-chip ${appState.playerTeamFilter === pt ? 'active' : ''}"
+                        onclick="appState.playerTeamFilter = '${escapeHtml(pt)}'; renderCurrentView();">
+                  ${pt === 'all' ? 'كل الفرق' : escapeHtml(pt)}
+                </button>
+              `).join('')}
+            </div>
+            <div class="filter-row" style="margin-bottom:0;">
+              <button class="filter-chip ${appState.playerNotesFilter === 'all' ? 'active' : ''}" onclick="appState.playerNotesFilter = 'all'; renderCurrentView();">الكل</button>
+              <button class="filter-chip ${appState.playerNotesFilter === 'with_notes' ? 'active' : ''}" onclick="appState.playerNotesFilter = 'with_notes'; renderCurrentView();">يوجد ملاحظات</button>
+              <button class="filter-chip ${appState.playerNotesFilter === 'no_notes' ? 'active' : ''}" onclick="appState.playerNotesFilter = 'no_notes'; renderCurrentView();">بدون ملاحظات</button>
+              ${(pq || appState.playerTeamFilter !== 'all' || appState.playerNotesFilter !== 'all') ? `
+                <button class="filter-chip" style="color:var(--danger);" onclick="appState.playerSearch='';appState.playerTeamFilter='all';appState.playerNotesFilter='all';renderCurrentView();">إعادة ضبط</button>
+              ` : ''}
+            </div>
+          </div>` : ''}
+        <div class="cards-stack">
+          ${players.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد بيانات لاعبين متاحة لهذا الحساب.</p></div>` : ''}
+          ${players.map(p => `
+            <div class="glass-card">
+              <div class="avatar-row">
+                <img src="${escapeHtml(p['cover'] || '')}" class="avatar-img" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(p['Player_Name'] || 'P')}&background=0f766e&color=fff'">
+                <div style="flex:1;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h4 style="font-size:15.5px;font-weight:800;">${escapeHtml(p['Player_Name'])}</h4>
+                    <span class="badge badge-teal">${escapeHtml(p['Team_ID'])}</span>
+                  </div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                    ولي الأمر: ${escapeHtml(p['Parent_Name'])} • كود: ${escapeHtml(p['Player_ID'])}
+                  </div>
+                </div>
+              </div>
+              <div class="meta-list">
+                <span class="meta-chip"><i data-lucide="phone" style="width:13px;height:13px;"></i> ${escapeHtml(p['Parent_Phone'])}</span>
+                ${isSuperAdmin && p['Parent_Email'] ? `<span class="meta-chip"><i data-lucide="mail" style="width:13px;height:13px;"></i> ${escapeHtml(p['Parent_Email'])}</span>` : ''}
+              </div>
+              ${p['ملاحظات'] ? `<div class="note-box"><strong>ملاحظات المدرب:</strong> ${escapeHtml(p['ملاحظات'])}</div>` : ''}
+              ${(isAdmin || isCoach) ? `
+                <div class="card-actions">
+                  <button class="btn btn-glass btn-sm" onclick='openEditPlayerModal(${JSON.stringify(p)})'>
+                    <i data-lucide="edit-3" style="width:13px;height:13px;"></i> ${isCoach ? 'تعديل / إضافة ملاحظة' : 'تعديل البيانات والصورة'}
+                  </button>
+                  ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteRow('players', ${p._rowIndex})">حذف</button>` : ''}
+                </div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function setScheduleFilter(val) {
+      appState.scheduleFilter = val;
+      renderCurrentView();
+    }
+
+    function renderScheduleView() {
+      const role = appState.user?.role || 'guest';
+      if (role === 'guest') {
+        return `
+          <div class="glass-card empty-state">
+            <i data-lucide="calendar-off" style="width:38px;height:38px;color:var(--primary);"></i>
+            <h3 style="margin-top:8px;">مواعيد التمارين للأعضاء فقط</h3>
+            <p>سجل دخولك لمتابعة مواعيد تمرين فريقك والملعب والمدرب المسؤول.</p>
+            <button class="btn btn-primary" style="margin-top:12px;" onclick="openLoginModal()">تسجيل الدخول</button>
+          </div>`;
+      }
+
+      const rawSchedule = appState.data.sheets.schedule || [];
+      const todayISO = new Date().toISOString().slice(0, 10);
+      const sTeams = ['all', ...new Set(rawSchedule.map(s => String(s['معرف الفريق'] || '').trim()).filter(Boolean))];
+      const sCoaches = ['all', ...new Set(rawSchedule.map(s => String(s['المدرب المسؤول'] || '').trim()).filter(Boolean))];
+
+      const schedule = rawSchedule.filter(s => {
+        const d = String(s['اليوم'] || '').trim();
+        const timeOk = appState.scheduleFilter === 'all' ||
+          (appState.scheduleFilter === 'upcoming' && d >= todayISO) ||
+          (appState.scheduleFilter === 'past' && d < todayISO);
+        const teamOk = appState.scheduleTeamFilter === 'all' || String(s['معرف الفريق'] || '').trim() === appState.scheduleTeamFilter;
+        const coachOk = appState.scheduleCoachFilter === 'all' || String(s['المدرب المسؤول'] || '').trim() === appState.scheduleCoachFilter;
+        return timeOk && teamOk && coachOk;
+      });
+
+      const isAdmin = ['super_admin', 'admin_staff'].includes(role);
+      const isCoach = role === 'coach';
+      const isParent = role === 'parent';
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="calendar" style="width:19px;height:19px;color:var(--primary);"></i> جدول المواعيد والتمارين</h3>
+          ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddScheduleModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة موعد</button>` : ''}
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-chip ${appState.scheduleFilter === 'all' ? 'active' : ''}" onclick="setScheduleFilter('all')">الكل (${rawSchedule.length})</button>
+          <button class="filter-chip ${appState.scheduleFilter === 'upcoming' ? 'active' : ''}" onclick="setScheduleFilter('upcoming')">القادمة</button>
+          <button class="filter-chip ${appState.scheduleFilter === 'past' ? 'active' : ''}" onclick="setScheduleFilter('past')">السابقة</button>
+          ${(appState.scheduleFilter !== 'all' || appState.scheduleTeamFilter !== 'all' || appState.scheduleCoachFilter !== 'all') ? `
+            <button class="filter-chip" style="color:var(--danger);" onclick="appState.scheduleFilter='all';appState.scheduleTeamFilter='all';appState.scheduleCoachFilter='all';renderCurrentView();">إعادة ضبط</button>
+          ` : ''}
+        </div>
+        ${role !== 'parent' ? `
+          <div class="filter-row">
+            ${sTeams.map(st => `
+              <button class="filter-chip ${appState.scheduleTeamFilter === st ? 'active' : ''}"
+                      onclick="appState.scheduleTeamFilter = '${escapeHtml(st)}'; renderCurrentView();">
+                ${st === 'all' ? 'كل الفرق' : escapeHtml(st)}
+              </button>
+            `).join('')}
+          </div>
+          <div class="filter-row">
+            ${sCoaches.map(sc => `
+              <button class="filter-chip ${appState.scheduleCoachFilter === sc ? 'active' : ''}"
+                      onclick="appState.scheduleCoachFilter = '${escapeHtml(sc)}'; renderCurrentView();">
+                ${sc === 'all' ? 'كل المدربين' : escapeHtml(sc)}
+              </button>
+            `).join('')}
+          </div>` : ''}
+
+        <div class="cards-stack">
+          ${schedule.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد مواعيد مطابقة للفلتر المحدد.</p></div>` : ''}
+          ${schedule.map(s => `
+            <div class="glass-card">
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
+                <div>
+                  <h4 style="font-size:15px;font-weight:800;">${escapeHtml(s['عنوان التمرين / الحصة'])}</h4>
+                  <span style="font-size:11.5px;color:var(--text-muted);">كود الحصة: ${escapeHtml(s['معرف الحصة'])}</span>
+                </div>
+                <span class="badge badge-lime">${escapeHtml(s['معرف الفريق'])}</span>
+              </div>
+              <div class="meta-list">
+                <span class="meta-chip"><i data-lucide="calendar" style="width:13px;height:13px;"></i> ${escapeHtml(s['اليوم'])}</span>
+                <span class="meta-chip"><i data-lucide="clock" style="width:13px;height:13px;"></i> ${escapeHtml(s['التوقيت'])}</span>
+                <span class="meta-chip"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> ${escapeHtml(s['الملعب'])}</span>
+                <span class="meta-chip"><i data-lucide="user" style="width:13px;height:13px;"></i> ${escapeHtml(s['المدرب المسؤول'])}</span>
+              </div>
+              ${s['ملاحظات'] ? `<div class="note-box"><strong>ملاحظات التمرين:</strong> ${escapeHtml(s['ملاحظات'])}</div>` : ''}
+              ${s['حالة_الحضور'] ? `<div class="attendance-box"><strong>حالة الحضور:</strong> ${escapeHtml(s['حالة_الحضور'])}</div>` : ''}
+
+              <div class="card-actions">
+                <button class="btn btn-glass btn-sm" onclick="downloadSessionICS('${escapeHtml(s['عنوان التمرين / الحصة'])}', '${escapeHtml(s['اليوم'])}', '${escapeHtml(s['التوقيت'])}', '${escapeHtml(s['الملعب'])}')">
+                  <i data-lucide="calendar-plus" style="width:13px;height:13px;"></i> للتقويم
+                </button>
+                ${isParent ? `
+                  <button class="btn btn-accent btn-sm" onclick="confirmAttendance('schedule', ${s._rowIndex}, 'سيحضر ✓')">تأكيد الحضور</button>
+                  <button class="btn btn-danger btn-sm" onclick="confirmAttendance('schedule', ${s._rowIndex}, 'اعتذار ✗')">اعتذار</button>
+                ` : ''}
+                ${(isAdmin || isCoach) ? `
+                  <button class="btn btn-glass btn-sm" onclick='openEditScheduleModal(${JSON.stringify(s)})'>تعديل / ملاحظات</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteRow('schedule', ${s._rowIndex})">إلغاء الموعد</button>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderPrivateView() {
+      const role = appState.user?.role || 'guest';
+      if (role === 'guest') {
+        return `
+          <div class="glass-card empty-state">
+            <i data-lucide="sparkles" style="width:38px;height:38px;color:var(--primary);"></i>
+            <h3 style="margin-top:8px;">حصص التدريب الخاص (Private)</h3>
+            <p>يرجى تسجيل الدخول لعرض حصص التدريب الخاص المصرح لك برؤيتها.</p>
+            <button class="btn btn-primary" style="margin-top:12px;" onclick="openLoginModal()">تسجيل الدخول</button>
+          </div>`;
+      }
+
+      const rawPriv = appState.data.sheets.private || [];
+      const pq = appState.privateSearch.trim().toLowerCase();
+      const list = rawPriv.filter(pr => {
+        const sMatch = !pq ||
+          String(pr['اسم اللاعب'] || '').toLowerCase().includes(pq) ||
+          String(pr['المدرب المسؤول'] || '').toLowerCase().includes(pq) ||
+          String(pr['معرف الفريق'] || '').toLowerCase().includes(pq);
+        const att = String(pr['حالة_الحضور'] || '').trim();
+        const stMatch = appState.privateStatusFilter === 'all' ||
+          (appState.privateStatusFilter === 'confirmed' && (att.includes('مؤكد') || att.includes('✓'))) ||
+          (appState.privateStatusFilter === 'pending' && !att);
+        return sMatch && stMatch;
+      });
+      const canManage = ['super_admin', 'admin_staff', 'coach'].includes(role);
+      const isParent = role === 'parent';
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="sparkles" style="width:19px;height:19px;color:var(--primary);"></i> حصص التدريب الخاص (${list.length})</h3>
+          ${canManage ? `<button class="btn btn-accent btn-sm" onclick="openAddPrivateModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة حصة Private</button>` : ''}
+        </div>
+        ${role !== 'guest' ? `
+          <div class="glass-card" style="padding:12px;margin-bottom:12px;">
+            <input type="text" class="form-control" placeholder="بحث باسم اللاعب أو المدرب..." value="${escapeHtml(appState.privateSearch)}"
+                   oninput="appState.privateSearch = this.value; renderCurrentView();" style="margin-bottom:8px;" />
+            <div class="filter-row" style="margin-bottom:0;">
+              <button class="filter-chip ${appState.privateStatusFilter === 'all' ? 'active' : ''}" onclick="appState.privateStatusFilter='all';renderCurrentView();">الكل</button>
+              <button class="filter-chip ${appState.privateStatusFilter === 'confirmed' ? 'active' : ''}" onclick="appState.privateStatusFilter='confirmed';renderCurrentView();">مؤكدة</button>
+              <button class="filter-chip ${appState.privateStatusFilter === 'pending' ? 'active' : ''}" onclick="appState.privateStatusFilter='pending';renderCurrentView();">بانتظار التأكيد</button>
+            </div>
+          </div>` : ''}
+        <div class="cards-stack">
+          ${list.length === 0 ? `<div class="glass-card empty-state"><p>${isParent ? 'لا توجد حصص Private مسجلة لابنك حالياً.' : 'لا توجد حصص Private مسجلة.'}</p></div>` : ''}
+          ${list.map(pr => `
+            <div class="glass-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h4 style="font-size:15px;font-weight:800;">اللاعب: ${escapeHtml(pr['اسم اللاعب'])}</h4>
+                <span class="badge badge-teal">${escapeHtml(pr['معرف الفريق'])}</span>
+              </div>
+              <div class="meta-list">
+                <span class="meta-chip"><i data-lucide="calendar" style="width:13px;height:13px;"></i> ${escapeHtml(pr['اليوم'])}</span>
+                <span class="meta-chip"><i data-lucide="clock" style="width:13px;height:13px;"></i> ${escapeHtml(pr['التوقيت'])}</span>
+                <span class="meta-chip"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> ${escapeHtml(pr['الملعب'])}</span>
+                <span class="meta-chip"><i data-lucide="award" style="width:13px;height:13px;"></i> ${escapeHtml(pr['المدرب المسؤول'])}</span>
+              </div>
+              ${pr['حالة_الحضور'] ? `<div class="attendance-box"><strong>تأكيد ولي الأمر:</strong> ${escapeHtml(pr['حالة_الحضور'])}</div>` : ''}
+
+              <div class="card-actions">
+                <button class="btn btn-glass btn-sm" onclick="downloadSessionICS('حصة Private - ${escapeHtml(pr['اسم اللاعب'])}', '${escapeHtml(pr['اليوم'])}', '${escapeHtml(pr['التوقيت'])}', '${escapeHtml(pr['الملعب'])}')">
+                  <i data-lucide="calendar-plus" style="width:13px;height:13px;"></i> للتقويم
+                </button>
+                ${isParent ? `
+                  <button class="btn btn-accent btn-sm" onclick="confirmAttendance('private', ${pr._rowIndex}, 'مؤكد ✓')">تأكيد الموعد</button>
+                  <button class="btn btn-danger btn-sm" onclick="confirmAttendance('private', ${pr._rowIndex}, 'طلب تأجيل ✗')">اعتذار</button>
+                ` : ''}
+                ${canManage ? `
+                  <button class="btn btn-glass btn-sm" onclick='openEditPrivateModal(${JSON.stringify(pr)})'>تعديل الموعد</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteRow('private', ${pr._rowIndex})">إلغاء الحصة</button>
+                ` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function setEduFilter(cat) {
+      appState.eduFilter = cat;
+      renderCurrentView();
+    }
+
+    function renderEducationView() {
+      const rawEdu = appState.data.sheets.education || [];
+      const categories = ['all', ...new Set(rawEdu.map(e => String(e['نوع الرياضة / التصنيف'] || '').trim()).filter(Boolean))];
+      const mediaTypes = ['all', ...new Set(rawEdu.map(e => String(e['نوع الوسائط'] || '').trim()).filter(Boolean))];
+      const edu = rawEdu.filter(e => {
+        const catOk = appState.eduFilter === 'all' || String(e['نوع الرياضة / التصنيف'] || '').trim() === appState.eduFilter;
+        const medOk = appState.eduMediaFilter === 'all' || String(e['نوع الوسائط'] || '').trim() === appState.eduMediaFilter;
+        return catOk && medOk;
+      });
+
+      const isAdmin = ['super_admin', 'admin_staff'].includes(appState.user?.role);
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="play-circle" style="width:19px;height:19px;color:var(--primary);"></i> المحتوى التعليمي والتدريبي</h3>
+          ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddEduModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة درس</button>` : ''}
+        </div>
+
+        <div class="filter-row">
+          ${categories.map(cat => `
+            <button class="filter-chip ${appState.eduFilter === cat ? 'active' : ''}" onclick="setEduFilter('${escapeHtml(cat)}')">
+              ${cat === 'all' ? 'كل الرياضات' : escapeHtml(cat)}
+            </button>
+          `).join('')}
+        </div>
+        <div class="filter-row">
+          ${mediaTypes.map(mt => `
+            <button class="filter-chip ${appState.eduMediaFilter === mt ? 'active' : ''}" onclick="appState.eduMediaFilter='${escapeHtml(mt)}';renderCurrentView();">
+              ${mt === 'all' ? 'كل الوسائط' : escapeHtml(mt)}
+            </button>
+          `).join('')}
+        </div>
+
+        <div class="cards-stack">
+          ${edu.map(item => `
+            <div class="glass-card">
+              ${item['cover'] ? `<img src="${escapeHtml(item['cover'])}" class="cover-img" onerror="this.style.display='none'">` : ''}
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
+                <h4 style="font-size:15px;font-weight:800;">${escapeHtml(item['عنوان الدرس'])}</h4>
+                <span class="badge badge-teal">${escapeHtml(item['نوع الرياضة / التصنيف'])}</span>
+              </div>
+              <div class="meta-list">
+                <span class="meta-chip">${escapeHtml(item['نوع الوسائط'])}</span>
+                <span class="meta-chip">الفئة: ${escapeHtml(item['الفئة المستهدفة'])}</span>
+              </div>
+              <div class="card-actions">
+                ${item['رابط المادة'] ? `<a href="${escapeHtml(item['رابط المادة'])}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="text-decoration:none;"><i data-lucide="external-link" style="width:13px;height:13px;"></i> فتح المادة التعليمية</a>` : ''}
+                ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="deleteRow('education', ${item._rowIndex})">حذف</button>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderCoachesView() {
+      const rawCoaches = appState.data.sheets.coaches || [];
+      const branches = ['all', ...new Set(rawCoaches.map(c => String(c['الفرع'] || '').trim()).filter(Boolean))];
+      const coaches = appState.coachBranchFilter === 'all'
+        ? rawCoaches
+        : rawCoaches.filter(c => String(c['الفرع'] || '').trim() === appState.coachBranchFilter);
+      const isSuperAdmin = appState.user?.role === 'super_admin';
+      const isAdmin = ['super_admin', 'admin_staff'].includes(appState.user?.role);
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="award" style="width:19px;height:19px;color:var(--primary);"></i> الجهاز الفني والمدربون (${coaches.length})</h3>
+          ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddCoachModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة مدرب</button>` : ''}
+        </div>
+        <div class="filter-row">
+          ${branches.map(br => `
+            <button class="filter-chip ${appState.coachBranchFilter === br ? 'active' : ''}" onclick="appState.coachBranchFilter='${escapeHtml(br)}';renderCurrentView();">
+              ${br === 'all' ? 'كل الفروع' : 'فرع ' + escapeHtml(br)}
+            </button>
+          `).join('')}
+        </div>
+        <div class="cards-stack">
+          ${coaches.map(c => `
+            <div class="glass-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <h4 style="font-size:15.5px;font-weight:800;">${escapeHtml(c['اسم المدرب'])}</h4>
+                  <span style="font-size:12px;color:var(--text-muted);">كود المدرب: ${escapeHtml(c['كود المدرب'])}</span>
+                </div>
+                <span class="badge badge-lime">فرع ${escapeHtml(c['الفرع'])}</span>
+              </div>
+              <div class="meta-list">
+                <span class="meta-chip"><i data-lucide="phone" style="width:13px;height:13px;"></i> ${escapeHtml(c['رقم المدرب'])}</span>
+                ${isSuperAdmin && c['ايميل المدرب'] ? `<span class="meta-chip"><i data-lucide="mail" style="width:13px;height:13px;"></i> ${escapeHtml(c['ايميل المدرب'])}</span>` : ''}
+                ${isSuperAdmin && c['login code'] ? `<span class="meta-chip"><i data-lucide="key" style="width:13px;height:13px;"></i> Code: ${escapeHtml(c['login code'])}</span>` : ''}
+              </div>
+              ${isAdmin ? `
+                <div class="card-actions">
+                  <button class="btn btn-glass btn-sm" onclick='openEditCoachModal(${JSON.stringify(c)})'>تعديل</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteRow('coaches', ${c._rowIndex})">حذف المدرب</button>
+                </div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderSubscriptionsView() {
+      const rawSubs = appState.data.sheets.subscriptions || [];
+      const months = ['all', ...new Set(rawSubs.map(s => String(s['الشهر'] || '').trim()).filter(Boolean))];
+      const paidCount = rawSubs.filter(s => String(s['هل تم الدفع']).toUpperCase() === 'TRUE').length;
+      const unpaidCount = rawSubs.length - paidCount;
+
+      const subs = rawSubs.filter(s => {
+        const isPaid = String(s['هل تم الدفع']).toUpperCase() === 'TRUE';
+        const stOk = appState.subStatusFilter === 'all' ||
+          (appState.subStatusFilter === 'paid' && isPaid) ||
+          (appState.subStatusFilter === 'unpaid' && !isPaid);
+        const mOk = appState.subMonthFilter === 'all' || String(s['الشهر'] || '').trim() === appState.subMonthFilter;
+        return stOk && mOk;
+      });
+
+      const role = appState.user?.role || 'guest';
+      const isAdmin = ['super_admin', 'admin_staff'].includes(role);
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="credit-card" style="width:19px;height:19px;color:var(--primary);"></i> حالة الاشتراكات (${subs.length})</h3>
+          ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddSubModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> تسجيل اشتراك</button>` : ''}
+        </div>
+        ${isAdmin ? `
+          <div class="filter-row">
+            <button class="filter-chip ${appState.subStatusFilter === 'all' ? 'active' : ''}" onclick="appState.subStatusFilter='all';renderCurrentView();">الكل (${rawSubs.length})</button>
+            <button class="filter-chip ${appState.subStatusFilter === 'paid' ? 'active' : ''}" onclick="appState.subStatusFilter='paid';renderCurrentView();">تم الدفع (${paidCount})</button>
+            <button class="filter-chip ${appState.subStatusFilter === 'unpaid' ? 'active' : ''}" onclick="appState.subStatusFilter='unpaid';renderCurrentView();">غير مدفوع (${unpaidCount})</button>
+          </div>
+          <div class="filter-row">
+            ${months.map(m => `
+              <button class="filter-chip ${appState.subMonthFilter === m ? 'active' : ''}" onclick="appState.subMonthFilter='${escapeHtml(m)}';renderCurrentView();">
+                ${m === 'all' ? 'كل الشهور' : escapeHtml(m)}
+              </button>
+            `).join('')}
+          </div>` : ''}
+        <div class="cards-stack">
+          ${subs.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد بيانات اشتراكات متاحة.</p></div>` : ''}
+          ${subs.map(s => {
+            const paid = String(s['هل تم الدفع']).toUpperCase() === 'TRUE';
+            return `
+              <div class="glass-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <div>
+                    <h4 style="font-size:15px;font-weight:800;">${escapeHtml(s['اسم اللاعب'])}</h4>
+                    <span style="font-size:12px;color:var(--text-muted);">الشهر: ${escapeHtml(s['الشهر'])} • فريق: ${escapeHtml(s['الفريق'])}</span>
+                  </div>
+                  <span class="badge ${paid ? 'badge-lime' : 'badge-red'}">${paid ? 'تم الدفع ✓' : 'غير مدفوع'}</span>
+                </div>
+                ${isAdmin ? `
+                  <div class="card-actions">
+                    <button class="btn btn-glass btn-sm" onclick="toggleSubscriptionPaid(${s._rowIndex}, ${!paid})">
+                      تغيير الحالة إلى (${!paid ? 'تم الدفع' : 'غير مدفوع'})
+                    </button>
+                  </div>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderAdminView() {
+      const admins = appState.data.sheets.admin || [];
+      const formUrl = appState.data.registrationFormUrl;
+      const isSuperAdmin = appState.user?.role === 'super_admin';
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="building-2" style="width:19px;height:19px;color:var(--primary);"></i> إدارة الأكاديمية والتسجيل</h3>
+        </div>
+
+        <div class="glass-card" style="margin-bottom:14px;background:linear-gradient(135deg, rgba(255,255,255,0.88), rgba(209,250,229,0.72));">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div class="stat-icon" style="background:rgba(101,163,13,0.18);color:#4d7c0f;"><i data-lucide="user-plus"></i></div>
+            <div>
+              <h4 style="font-size:15.5px;font-weight:800;">استمارة تسجيل اللاعبين الجدد</h4>
+              <span style="font-size:12px;color:var(--text-muted);">يتم تفعيل الحساب بعد 24 ساعة من إرسال الاستمارة</span>
+            </div>
+          </div>
+          <p style="font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;">
+            للمستخدمين الجدد: يرجى تعبئة استمارة التسجيل الرسمية بالبيانات الصحيحة وبريد ولي الأمر الإلكتروني، وسيتم إدراج اللاعب وتفعيل الدخول خلال 24 ساعة.
+          </p>
+          ${formUrl ? `
+            <a href="${escapeHtml(formUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-block" style="text-decoration:none;">
+              <i data-lucide="file-text" style="width:16px;height:16px;"></i> فتح استمارة تسجيل لاعب جديد (Google Form)
+            </a>` : ''}
+        </div>
+
+        <div class="cards-stack">
+          ${admins.map(a => `
+            <div class="glass-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h4 style="font-size:15px;font-weight:800;">${escapeHtml(a['المسؤول / القسم'])}</h4>
+                <span class="badge badge-teal">${escapeHtml(a['الدور'])}</span>
+              </div>
+              <div class="meta-list">
+                <span class="meta-chip"><i data-lucide="phone" style="width:13px;height:13px;"></i> ${escapeHtml(a['الهاتف'])}</span>
+                <span class="meta-chip"><i data-lucide="clock" style="width:13px;height:13px;"></i> ${escapeHtml(a['ساعات العمل'])}</span>
+                ${isSuperAdmin && a['البريد الإلكتروني'] ? `<span class="meta-chip"><i data-lucide="mail" style="width:13px;height:13px;"></i> ${escapeHtml(a['البريد الإلكتروني'])}</span>` : ''}
+                ${isSuperAdmin && a['Login Code'] ? `<span class="meta-chip"><i data-lucide="key" style="width:13px;height:13px;"></i> Code: ${escapeHtml(a['Login Code'])}</span>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderResponsesView() {
+      const responses = appState.data.sheets.responses || [];
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="file-check" style="width:19px;height:19px;color:var(--primary);"></i> طلبات التسجيل الواردة</h3>
+        </div>
+        <div class="cards-stack">
+          ${responses.length === 0 ? `<div class="glass-card empty-state"><p>لا توجد طلبات تسجيل جديدة في الفورم حالياً.</p></div>` : ''}
+          ${responses.map(r => `
+            <div class="glass-card">
+              <h4 style="font-size:15px;font-weight:800;">اللاعب: ${escapeHtml(r['أسم اللاعب'])} (${escapeHtml(r['سن اللاعب'])} سنة)</h4>
+              <div class="meta-list">
+                <span class="meta-chip">ولي الأمر: ${escapeHtml(r['اسم الوالد'])}</span>
+                <span class="meta-chip">الهاتف: ${escapeHtml(r['رقم تليفون الوالد'])}</span>
+                <span class="meta-chip">الرياضة: ${escapeHtml(r['نوع الرياضة'])}</span>
+                <span class="meta-chip">المستوى: ${escapeHtml(r['مستوي اللاعب'])}</span>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary btn-sm" onclick='approveNewPlayer(${JSON.stringify(r)})'>
+                  <i data-lucide="check-circle" style="width:14px;height:14px;"></i> اعتماد وإضافة لكشف اللاعبين
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // CRUD & WRITE OPERATIONS
+    // =========================================================================
+    let currentCrudContext = null;
+
+    function openCrudForm(title, fields, context) {
+      currentCrudContext = context;
+      document.getElementById('crudModalTitle').textContent = title;
+      const form = document.getElementById('crudForm');
+      form.innerHTML = fields.map(f => `
+        <div class="form-group">
+          <label>${f.label}</label>
+          <input type="${f.type || 'text'}" name="${f.name}" value="${escapeHtml(f.value || '')}"
+                 placeholder="${escapeHtml(f.placeholder || '')}"
+                 class="form-control" ${f.required ? 'required' : ''} ${f.readonly ? 'readonly' : ''} />
+        </div>
+      `).join('') + `<button type="submit" class="btn btn-primary btn-block" style="margin-top:8px;">حفظ التعديلات في الشيت</button>`;
+      document.getElementById('crudModal').classList.add('open');
+    }
+
+    async function submitCrudForm(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const payload = {};
+      formData.forEach((val, key) => { payload[key] = val; });
+
+      await sendWriteRequest({
+        op: currentCrudContext.op,
+        target: currentCrudContext.target,
+        rowIndex: currentCrudContext.rowIndex,
+        payload
+      });
+      closeModal('crudModal');
+    }
+
+    async function sendWriteRequest(body) {
+      const u = appState.user || {};
+      try {
+        showToast('جاري الحفظ في جوجل شيت...');
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'write',
+            authEmail: u.email || '',
+            authCode: u.code || '',
+            ...body
+          })
+        });
+        const json = await res.json();
+        showToast(json.message || 'تم التنفيذ');
+        if (json.status === 'success') {
+          refreshData(false, true);
+        }
+      } catch (err) {
+        showToast('حدث خطأ أثناء الاتصال بالشيت');
+      }
+    }
+
+    function deleteRow(target, rowIndex) {
+      if (!confirm('هل أنت متأكد من الحذف نهائياً من الشيت؟')) return;
+      sendWriteRequest({ op: 'delete', target, rowIndex });
+    }
+
+    function openAddTeamModal() {
+      openCrudForm('إضافة فريق جديد', [
+        { name: 'معرف الفريق', label: 'معرف الفريق (مثال: Blue 1)', required: true },
+        { name: 'اسم الفريق / الفئة', label: 'اسم الفريق / الفئة', required: true },
+        { name: 'نوع الرياضة', label: 'نوع الرياضة', value: 'تنس', required: true },
+        { name: 'اسم المدرب', label: 'اسم المدرب المسؤول', required: true },
+        { name: 'الفئة العمرية / المستوى', label: 'الفئة العمرية / المستوى', required: true },
+        { name: 'cover', label: 'رابط صورة الغلاف (Cover URL)' }
+      ], { op: 'add', target: 'teams' });
+    }
+
+    function openEditTeamModal(t) {
+      openCrudForm('تعديل بيانات الفريق', [
+        { name: 'معرف الفريق', label: 'معرف الفريق', value: t['معرف الفريق'], required: true },
+        { name: 'اسم الفريق / الفئة', label: 'اسم الفريق / الفئة', value: t['اسم الفريق / الفئة'], required: true },
+        { name: 'نوع الرياضة', label: 'نوع الرياضة', value: t['نوع الرياضة'] },
+        { name: 'اسم المدرب', label: 'اسم المدرب', value: t['اسم المدرب'] },
+        { name: 'الفئة العمرية / المستوى', label: 'الفئة العمرية / المستوى', value: t['الفئة العمرية / المستوى'] },
+        { name: 'cover', label: 'رابط صورة الغلاف', value: t['cover'] }
+      ], { op: 'update', target: 'teams', rowIndex: t._rowIndex });
+    }
+
+    function openAddPlayerModal() {
+      const isSuperAdmin = appState.user?.role === 'super_admin';
+      const fields = [
+        { name: 'Player_ID', label: 'كود اللاعب (يتم توليده تلقائياً)', value: 'تلقائي', readonly: true },
+        { name: 'Player_Name', label: 'اسم اللاعب', required: true },
+        { name: 'Team_ID', label: 'كود الفريق (مثال: Green 1)', required: true },
+        { name: 'Parent_Name', label: 'اسم ولي الأمر', required: true },
+        { name: 'Parent_Phone', label: 'رقم هاتف ولي الأمر', required: true },
+        { name: 'cover', label: 'رابط صورة اللاعب (Cover URL)' },
+        { name: 'ملاحظات', label: 'ملاحظات' }
+      ];
+      if (isSuperAdmin) {
+        fields.splice(5, 0, { name: 'Parent_Email', label: 'ايميل ولي الأمر (لتسجيل الدخول)', type: 'email', required: true });
+      }
+      openCrudForm('إضافة لاعب جديد', fields, { op: 'add', target: 'players' });
+    }
+
+    function openEditPlayerModal(p) {
+      const role = appState.user?.role;
+      const isCoach = role === 'coach';
+      const isSuperAdmin = role === 'super_admin';
+      const fields = isCoach ? [
+        { name: 'Player_Name', label: 'اسم اللاعب', value: p['Player_Name'], required: true },
+        { name: 'Team_ID', label: 'الفريق', value: p['Team_ID'] },
+        { name: 'ملاحظات', label: 'ملاحظات المدرب على اللاعب', value: p['ملاحظات'] }
+      ] : [
+        { name: 'Player_Name', label: 'اسم اللاعب', value: p['Player_Name'], required: true },
+        { name: 'Team_ID', label: 'كود الفريق', value: p['Team_ID'] },
+        { name: 'Parent_Name', label: 'اسم ولي الأمر', value: p['Parent_Name'] },
+        { name: 'Parent_Phone', label: 'رقم ولي الأمر', value: p['Parent_Phone'] },
+        ...(isSuperAdmin ? [{ name: 'Parent_Email', label: 'ايميل ولي الأمر', value: p['Parent_Email'] }] : []),
+        { name: 'cover', label: 'رابط صورة اللاعب', value: p['cover'] },
+        { name: 'ملاحظات', label: 'ملاحظات', value: p['ملاحظات'] }
+      ];
+      openCrudForm('تعديل بيانات اللاعب', fields, { op: 'update', target: 'players', rowIndex: p._rowIndex });
+    }
+
+    function openAddScheduleModal() {
+      openCrudForm('إضافة موعد تمرين جديد', [
+        { name: 'معرف الحصة', label: 'معرف الحصة (يتم توليده تلقائياً)', value: 'تلقائي', readonly: true },
+        { name: 'معرف الفريق', label: 'معرف الفريق (مثال: Green 1)', required: true },
+        { name: 'عنوان التمرين / الحصة', label: 'عنوان التمرين', required: true },
+        { name: 'اليوم', label: 'التاريخ (YYYY-MM-DD)', type: 'date', required: true },
+        { name: 'التوقيت', label: 'التوقيت (مثال: 17:00:00)', required: true },
+        { name: 'الملعب', label: 'الملعب', required: true },
+        { name: 'المدرب المسؤول', label: 'المدرب المسؤول', required: true },
+        { name: 'ملاحظات', label: 'ملاحظات التمرين' }
+      ], { op: 'add', target: 'schedule' });
+    }
+
+    function openEditScheduleModal(s) {
+      openCrudForm('تعديل موعد التمرين / إضافة ملاحظة', [
+        { name: 'معرف الفريق', label: 'معرف الفريق', value: s['معرف الفريق'], readonly: true },
+        { name: 'عنوان التمرين / الحصة', label: 'عنوان التمرين', value: s['عنوان التمرين / الحصة'], required: true },
+        { name: 'اليوم', label: 'التاريخ', value: s['اليوم'], required: true },
+        { name: 'التوقيت', label: 'التوقيت', value: s['التوقيت'], required: true },
+        { name: 'الملعب', label: 'الملعب', value: s['الملعب'], required: true },
+        { name: 'المدرب المسؤول', label: 'المدرب المسؤول', value: s['المدرب المسؤول'] },
+        { name: 'ملاحظات', label: 'ملاحظات المدرب على التمرين', value: s['ملاحظات'] }
+      ], { op: 'update', target: 'schedule', rowIndex: s._rowIndex });
+    }
+
+    function openAddPrivateModal() {
+      const coachName = appState.user?.role === 'coach' ? appState.user.name : '';
+      openCrudForm('إضافة حصة Private (مع إشعار تلقائي لولي الأمر)', [
+        { name: 'معرف الحصة', label: 'معرف الحصة (يتم توليده تلقائياً)', value: 'تلقائي', readonly: true },
+        { name: 'معرف الفريق', label: 'الفريق (مثال: Green 1)', required: true },
+        { name: 'اسم اللاعب', label: 'اسم اللاعب (مطابق لاسم اللاعب في الشيت)', required: true },
+        { name: 'اليوم', label: 'التاريخ', type: 'date', required: true },
+        { name: 'التوقيت', label: 'التوقيت (مثال: 18:00:00)', required: true },
+        { name: 'الملعب', label: 'الملعب', required: true },
+        { name: 'المدرب المسؤول', label: 'المدرب المسؤول', value: coachName, required: true }
+      ], { op: 'add', target: 'private' });
+    }
+
+    function openEditPrivateModal(pr) {
+      openCrudForm('تعديل حصة Private', [
+        { name: 'اسم اللاعب', label: 'اسم اللاعب', value: pr['اسم اللاعب'], required: true },
+        { name: 'اليوم', label: 'التاريخ', value: pr['اليوم'], required: true },
+        { name: 'التوقيت', label: 'التوقيت', value: pr['التوقيت'], required: true },
+        { name: 'الملعب', label: 'الملعب', value: pr['الملعب'], required: true },
+        { name: 'المدرب المسؤول', label: 'المدرب المسؤول', value: pr['المدرب المسؤول'] }
+      ], { op: 'update', target: 'private', rowIndex: pr._rowIndex });
+    }
+
+    function openAddCoachModal() {
+      const isSuperAdmin = appState.user?.role === 'super_admin';
+      const fields = [
+        { name: 'كود المدرب', label: 'كود المدرب (يتم توليده تلقائياً)', value: 'تلقائي', readonly: true },
+        { name: 'اسم المدرب', label: 'اسم المدرب', required: true },
+        { name: 'رقم المدرب', label: 'رقم هاتف المدرب', required: true },
+        { name: 'الفرع', label: 'الفرع', value: 'Qatameya', required: true }
+      ];
+      if (isSuperAdmin) {
+        fields.push(
+          { name: 'ايميل المدرب', label: 'ايميل المدرب للدخول', type: 'email', required: true },
+          { name: 'login code', label: 'رمز الدخول (Login Code)', required: true }
+        );
+      }
+      openCrudForm('إضافة مدرب جديد', fields, { op: 'add', target: 'coaches' });
+    }
+
+    function openEditCoachModal(c) {
+      const isSuperAdmin = appState.user?.role === 'super_admin';
+      const fields = [
+        { name: 'اسم المدرب', label: 'اسم المدرب', value: c['اسم المدرب'], required: true },
+        { name: 'رقم المدرب', label: 'رقم المدرب', value: c['رقم المدرب'], required: true },
+        { name: 'الفرع', label: 'الفرع', value: c['الفرع'] }
+      ];
+      if (isSuperAdmin) {
+        fields.push(
+          { name: 'ايميل المدرب', label: 'ايميل المدرب', value: c['ايميل المدرب'] },
+          { name: 'login code', label: 'رمز الدخول (Login Code)', value: c['login code'] }
+        );
+      }
+      openCrudForm('تعديل بيانات المدرب', fields, { op: 'update', target: 'coaches', rowIndex: c._rowIndex });
+    }
+
+    function openAddEduModal() {
+      openCrudForm('إضافة محتوى تعليمي جديد', [
+        { name: 'معرف المحتوى', label: 'معرف المحتوى (تلقائي)', value: 'تلقائي', readonly: true },
+        { name: 'عنوان الدرس', label: 'عنوان الدرس', required: true },
+        { name: 'نوع الرياضة / التصنيف', label: 'التصنيف (تنس / بادل / لياقة)', required: true },
+        { name: 'نوع الوسائط', label: 'نوع الوسائط (فيديو / مقال)', required: true },
+        { name: 'رابط المادة', label: 'رابط المادة', required: true },
+        { name: 'الفئة المستهدفة', label: 'الفئة المستهدفة', value: 'جميع اللاعبين' },
+        { name: 'cover', label: 'رابط صورة الغلاف' }
+      ], { op: 'add', target: 'education' });
+    }
+
+    function openAddSubModal() {
+      openCrudForm('إضافة حالة اشتراك', [
+        { name: 'كود اللاعب', label: 'كود اللاعب (مثال: P01)', required: true },
+        { name: 'اسم اللاعب', label: 'اسم اللاعب', required: true },
+        { name: 'الفريق', label: 'الفريق', required: true },
+        { name: 'الشهر', label: 'الشهر (مثال: ديسمبر)', required: true },
+        { name: 'هل تم الدفع', label: 'حالة الدفع (TRUE أو FALSE)', value: 'TRUE', required: true }
+      ], { op: 'add', target: 'subscriptions' });
+    }
+
+    function toggleSubscriptionPaid(rowIndex, newStatus) {
+      sendWriteRequest({
+        op: 'update',
+        target: 'subscriptions',
+        rowIndex,
+        payload: { 'هل تم الدفع': newStatus ? 'TRUE' : 'FALSE' }
+      });
+    }
+
+    function approveNewPlayer(resp) {
+      sendWriteRequest({
+        op: 'approve_response',
+        target: 'players',
+        payload: {
+          Player_Name: resp['أسم اللاعب'],
+          Parent_Name: resp['اسم الوالد'],
+          Parent_Phone: resp['رقم تليفون الوالد'],
+          Parent_Email: resp['ايميل الوالد'] || ''
+        }
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
