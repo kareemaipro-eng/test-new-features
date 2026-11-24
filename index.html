@@ -102,6 +102,8 @@
     }
 
     .glass-card {
+      position: relative;
+      z-index: 1;
       background: var(--glass-bg);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -111,14 +113,25 @@
       padding: 16px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .dd-host-open,
+    .glass-card:has(.glass-dd.open),
+    .filter-toolbar:has(.glass-dd.open),
+    .filter-toolbar-3:has(.glass-dd.open) {
+      position: relative;
+      z-index: 55 !important;
+    }
 
     .filter-toolbar {
+      position: relative;
+      z-index: 20;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-bottom: 10px;
     }
     .filter-toolbar-3 {
+      position: relative;
+      z-index: 20;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 7px;
@@ -1158,17 +1171,24 @@
         </div>`;
     }
 
+    function closeAllGlassDropdowns() {
+      document.querySelectorAll('.glass-dd.open').forEach(el => el.classList.remove('open'));
+      document.querySelectorAll('.dd-host-open').forEach(el => el.classList.remove('dd-host-open'));
+    }
+
     function toggleGlassDropdown(e, ddId) {
       e.stopPropagation();
       const target = document.getElementById(ddId);
       const wasOpen = target && target.classList.contains('open');
-      document.querySelectorAll('.glass-dd.open').forEach(el => el.classList.remove('open'));
-      if (target && !wasOpen) target.classList.add('open');
+      closeAllGlassDropdowns();
+      if (target && !wasOpen) {
+        target.classList.add('open');
+        const hostCard = target.closest('.glass-card, .filter-toolbar, .filter-toolbar-3');
+        if (hostCard) hostCard.classList.add('dd-host-open');
+      }
     }
 
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.glass-dd.open').forEach(el => el.classList.remove('open'));
-    });
+    document.addEventListener('click', closeAllGlassDropdowns);
 
     function onSelectTeamCoach(val) { appState.teamCoachFilter = val; renderCurrentView(); }
     function onSelectPlayerTeam(val) { appState.playerTeamFilter = val; renderCurrentView(); }
@@ -2296,7 +2316,7 @@
           <h3><i data-lucide="award" style="width:19px;height:19px;color:var(--primary);"></i> الجهاز الفني والمدربون (${coaches.length})</h3>
           ${isAdmin ? `<button class="btn btn-primary btn-sm" onclick="openAddCoachModal()"><i data-lucide="plus" style="width:15px;height:15px;"></i> إضافة مدرب</button>` : ''}
         </div>
-        <div style="margin-bottom:12px;">
+        <div class="filter-toolbar" style="grid-template-columns:1fr;margin-bottom:12px;">
           ${renderGlassDropdown('coachBranch', appState.coachBranchFilter, branches.map(br => ({ value: br, label: br === 'all' ? 'كل الفروع' : 'فرع ' + br })), 'onSelectCoachBranch')}
         </div>
         <div class="cards-stack">
