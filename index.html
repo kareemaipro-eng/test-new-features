@@ -238,6 +238,42 @@
       color: var(--primary);
     }
 
+    /* 5-Star Rating UI */
+    .star-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      direction: ltr;
+      justify-content: flex-end;
+      margin: 6px 0 10px;
+    }
+    .star-btn {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 11px;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .star-btn.active {
+      color: #f59e0b;
+      border-color: rgba(245, 158, 11, 0.55);
+      background: rgba(254, 243, 199, 0.7);
+      transform: scale(1.06);
+    }
+    .stars-display {
+      color: #f59e0b;
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 13px;
+    }
+
     /* Skeleton Shimmer Loading */
     .skeleton-card {
       background: rgba(255, 255, 255, 0.55);
@@ -1102,6 +1138,51 @@
     </div>
   </div>
 
+  <!-- Parent Session Evaluation Modal (5 Stars + Note -> Super Admin Only) -->
+  <div id="evalModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h3 style="font-size:16px;font-weight:800;">تقييم التمرين والكابتن</h3>
+        <button class="icon-pill" onclick="closeModal('evalModal')"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+      </div>
+      <div id="evalSessionSummary" style="padding:10px 12px;border-radius:14px;background:rgba(20,184,166,0.1);font-size:12.5px;margin-bottom:12px;line-height:1.6;"></div>
+
+      <div class="form-group">
+        <label>تقييم الكابتن المسؤول (من 5 نجوم)</label>
+        <div class="star-row" id="coachStarsRow">
+          <button type="button" class="star-btn active" data-val="1" onclick="setStarRating('coach', 1)">★</button>
+          <button type="button" class="star-btn active" data-val="2" onclick="setStarRating('coach', 2)">★</button>
+          <button type="button" class="star-btn active" data-val="3" onclick="setStarRating('coach', 3)">★</button>
+          <button type="button" class="star-btn active" data-val="4" onclick="setStarRating('coach', 4)">★</button>
+          <button type="button" class="star-btn active" data-val="5" onclick="setStarRating('coach', 5)">★</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>تقييم مستوى التمرين والتنظيم (من 5 نجوم)</label>
+        <div class="star-row" id="sessionStarsRow">
+          <button type="button" class="star-btn active" data-val="1" onclick="setStarRating('session', 1)">★</button>
+          <button type="button" class="star-btn active" data-val="2" onclick="setStarRating('session', 2)">★</button>
+          <button type="button" class="star-btn active" data-val="3" onclick="setStarRating('session', 3)">★</button>
+          <button type="button" class="star-btn active" data-val="4" onclick="setStarRating('session', 4)">★</button>
+          <button type="button" class="star-btn active" data-val="5" onclick="setStarRating('session', 5)">★</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ملاحظاتك عن الكابتن أو التمرين (اختياري)</label>
+        <textarea id="evalNoteInput" rows="3" class="form-control" placeholder="اكتب ملاحظتك بكل صراحة..."></textarea>
+      </div>
+
+      <div style="font-size:11.5px;color:var(--primary);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:5px;">
+        <i data-lucide="shield-check" style="width:15px;height:15px;"></i>
+        <span>ملاحظتك وتقييمك سرّي ويصل للمدير العام للأكاديمية فقط.</span>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-block" onclick="submitEvaluation()">إرسال التقييم للمدير العام</button>
+    </div>
+  </div>
+
   <script>
     // =========================================================================
     // رابط النشر (Web App URL) الخاص بكود Google Apps Script
@@ -1281,6 +1362,7 @@
 
       const items = [
         { id: 'dashboard', label: 'لوحة تحكم المدير العام (KPIs)', icon: 'bar-chart-3', visible: isSuperAdmin, highlight: true },
+        { id: 'evaluations', label: 'تقييمات الكباتن والتمارين (سري)', icon: 'star', visible: isSuperAdmin, highlight: true },
         { id: 'private', label: 'حصص البرايفت (Private)', icon: 'sparkles', visible: true },
         { id: 'education', label: 'المحتوى التعليمي', icon: 'play-circle', visible: true },
         { id: 'coaches', label: 'المدربون', icon: 'award', visible: true },
@@ -1545,6 +1627,152 @@
       }
     }
 
+    let currentEvalContext = {
+      sessionType: 'جماعي',
+      sessionId: '',
+      sessionTitle: '',
+      coachName: '',
+      teamId: '',
+      coachRating: 5,
+      sessionRating: 5
+    };
+
+    function openEvalModal(sessionType, sessionId, sessionTitle, coachName, teamId) {
+      currentEvalContext = {
+        sessionType,
+        sessionId,
+        sessionTitle,
+        coachName,
+        teamId,
+        coachRating: 5,
+        sessionRating: 5
+      };
+      document.getElementById('evalSessionSummary').innerHTML = `
+        <strong>التمرين:</strong> ${escapeHtml(sessionTitle)}<br>
+        <strong>الكابتن:</strong> ${escapeHtml(coachName)} • <strong>الفريق:</strong> ${escapeHtml(teamId)}
+      `;
+      document.getElementById('evalNoteInput').value = '';
+      setStarRating('coach', 5);
+      setStarRating('session', 5);
+      document.getElementById('evalModal').classList.add('open');
+      lucide.createIcons();
+    }
+
+    function setStarRating(kind, val) {
+      if (kind === 'coach') currentEvalContext.coachRating = val;
+      else currentEvalContext.sessionRating = val;
+
+      const rowId = kind === 'coach' ? 'coachStarsRow' : 'sessionStarsRow';
+      document.querySelectorAll(`#${rowId} .star-btn`).forEach(btn => {
+        const v = Number(btn.dataset.val);
+        btn.classList.toggle('active', v <= val);
+      });
+    }
+
+    async function submitEvaluation() {
+      const u = appState.user || {};
+      if (u.role !== 'parent') return;
+      const playerName = u.players && u.players[0] ? u.players[0]['Player_Name'] : '';
+      const note = document.getElementById('evalNoteInput').value.trim();
+
+      try {
+        showToast('جاري إرسال تقييمك للمدير العام...');
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'evaluate',
+            authEmail: u.email || '',
+            sessionType: currentEvalContext.sessionType,
+            sessionId: currentEvalContext.sessionId,
+            sessionTitle: currentEvalContext.sessionTitle,
+            coachName: currentEvalContext.coachName,
+            teamId: currentEvalContext.teamId,
+            playerName,
+            coachRating: currentEvalContext.coachRating,
+            sessionRating: currentEvalContext.sessionRating,
+            note
+          })
+        });
+        const json = await res.json();
+        showToast(json.message || 'تم إرسال التقييم');
+        closeModal('evalModal');
+        if (json.status === 'success') refreshData(false, true);
+      } catch (err) {
+        showToast('حدث خطأ أثناء إرسال التقييم');
+      }
+    }
+
+    function renderStarsText(score) {
+      const n = Math.round(Number(score) || 0);
+      return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
+    }
+
+    function renderEvaluationsAdminView() {
+      const role = appState.user?.role || 'guest';
+      if (role !== 'super_admin') {
+        return `
+          <div class="glass-card empty-state">
+            <i data-lucide="shield-alert" style="width:38px;height:38px;color:var(--danger);"></i>
+            <h3 style="margin-top:8px;">صفحة سرية للمدير العام فقط</h3>
+            <p>تقييمات وملاحظات أولياء الأمور متاحة للإدارة العليا (ADM-01) فقط.</p>
+          </div>`;
+      }
+
+      const evals = (appState.data?.sheets?.evaluations || []).slice().reverse();
+      const summary = appState.data?.executiveAnalytics?.evaluationsSummary || { totalCount: 0, avgCoachRating: '0.0', avgSessionRating: '0.0' };
+
+      return `
+        <div class="section-head">
+          <h3><i data-lucide="star" style="width:19px;height:19px;color:#f59e0b;"></i> تقييمات وملاحظات أولياء الأمور (${evals.length})</h3>
+        </div>
+
+        <div class="kpi-grid-2">
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">متوسط تقييم الكباتن</span>
+              <span style="color:#f59e0b;font-size:15px;">★</span>
+            </div>
+            <div class="kpi-val">${escapeHtml(summary.avgCoachRating)} <small style="font-size:12px;color:var(--text-muted);">/ 5</small></div>
+            <div class="kpi-sub" style="color:var(--primary);">من إجمالي ${summary.totalCount} تقييم</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">متوسط جودة التمارين</span>
+              <span style="color:#f59e0b;font-size:15px;">★</span>
+            </div>
+            <div class="kpi-val">${escapeHtml(summary.avgSessionRating)} <small style="font-size:12px;color:var(--text-muted);">/ 5</small></div>
+            <div class="kpi-sub" style="color:#4d7c0f;">سري للمدير العام فقط</div>
+          </div>
+        </div>
+
+        <div class="cards-stack">
+          ${evals.length === 0 ? `<div class="glass-card empty-state"><p>لم يقم أولياء الأمور بإرسال تقييمات للتمارين المنتهية بعد.</p></div>` : ''}
+          ${evals.map(ev => `
+            <div class="glass-card">
+              <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
+                <div>
+                  <h4 style="font-size:14.5px;font-weight:800;">${escapeHtml(ev['عنوان_التمرين'])}</h4>
+                  <span style="font-size:11.5px;color:var(--text-muted);">الكابتن: <strong>${escapeHtml(ev['اسم_المدرب'])}</strong> • فريق: ${escapeHtml(ev['الفريق'])}</span>
+                </div>
+                <span class="badge badge-teal">${escapeHtml(ev['نوع_الحصة'])}</span>
+              </div>
+
+              <div class="meta-list" style="margin-top:8px;">
+                <span class="meta-chip">تقييم الكابتن: <span class="stars-display">${renderStarsText(ev['تقييم_المدرب'])}</span> (${escapeHtml(ev['تقييم_المدرب'])}/5)</span>
+                <span class="meta-chip">تقييم التمرين: <span class="stars-display">${renderStarsText(ev['تقييم_التمرين'])}</span> (${escapeHtml(ev['تقييم_التمرين'])}/5)</span>
+              </div>
+
+              <div style="font-size:11.5px;color:var(--text-muted);margin-top:7px;">
+                ولي الأمر: <strong>${escapeHtml(ev['اسم_ولي_الأمر'])}</strong> (اللاعب: ${escapeHtml(ev['اسم_اللاعب'])}) • ${escapeHtml(ev['التاريخ_والوقت'])}
+              </div>
+
+              ${ev['ملاحظات_ولي_الأمر'] ? `<div class="note-box"><strong>ملاحظة ولي الأمر:</strong> ${escapeHtml(ev['ملاحظات_ولي_الأمر'])}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
     // =========================================================================
     // VIEW RENDERERS
     // =========================================================================
@@ -1564,7 +1792,8 @@
         coaches: renderCoachesView,
         subscriptions: renderSubscriptionsView,
         admin: renderAdminView,
-        responses: renderResponsesView
+        responses: renderResponsesView,
+        evaluations: renderEvaluationsAdminView
       };
 
       container.innerHTML = (renderers[view] || renderHomeView)();
@@ -1889,6 +2118,22 @@
           }).join('')}
         </div>
 
+        <!-- 4.5 Secret Parent Evaluations Summary (Super Admin Only) -->
+        ${ea.evaluationsSummary ? `
+          <div class="section-head">
+            <h3><i data-lucide="star" style="width:18px;height:18px;color:#f59e0b;"></i> تقييمات أولياء الأمور (سرية)</h3>
+            <button class="btn btn-glass btn-sm" onclick="navigate('evaluations')">عرض الكل (${ea.evaluationsSummary.totalCount})</button>
+          </div>
+          <div class="glass-card" style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:13px;font-weight:800;">متوسط رضا أولياء الأمور</div>
+                <div style="font-size:11.5px;color:var(--text-muted);">الكباتن: <strong>${escapeHtml(ea.evaluationsSummary.avgCoachRating)} ★</strong> • التمارين: <strong>${escapeHtml(ea.evaluationsSummary.avgSessionRating)} ★</strong></div>
+              </div>
+              <span class="badge badge-amber">${ea.evaluationsSummary.totalCount} تقييم</span>
+            </div>
+          </div>` : ''}
+
         <!-- 5. Coach Workload & Efficiency -->
         <div class="section-head">
           <h3><i data-lucide="award" style="width:18px;height:18px;color:var(--primary);"></i> توزيع الأحمال التدريبية للمدربين</h3>
@@ -1900,7 +2145,10 @@
                 <strong style="font-size:13.5px;">${escapeHtml(c.name)}</strong>
                 <span style="font-size:11px;color:var(--text-muted);display:block;">فرع ${escapeHtml(c.branch)} • جماعي: ${c.groupSessions} | Private: ${c.privateSessions}</span>
               </div>
-              <span class="badge badge-teal">${c.totalSessions} حصة</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                ${c.avgRating ? `<span class="badge badge-amber">${escapeHtml(c.avgRating)} ★ (${c.evalCount})</span>` : ''}
+                <span class="badge badge-teal">${c.totalSessions} حصة</span>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -2159,10 +2407,21 @@
                 <button class="btn btn-glass btn-sm" onclick="downloadSessionICS('${escapeHtml(s['عنوان التمرين / الحصة'])}', '${escapeHtml(s['اليوم'])}', '${escapeHtml(s['التوقيت'])}', '${escapeHtml(s['الملعب'])}')">
                   <i data-lucide="calendar-plus" style="width:13px;height:13px;"></i> للتقويم
                 </button>
-                ${isParent ? `
-                  <button class="btn btn-accent btn-sm" onclick="confirmAttendance('schedule', ${s._rowIndex}, 'سيحضر ✓')">تأكيد الحضور</button>
-                  <button class="btn btn-danger btn-sm" onclick="confirmAttendance('schedule', ${s._rowIndex}, 'اعتذار ✗')">اعتذار</button>
-                ` : ''}
+                ${isParent ? (() => {
+                  const isFinished = String(s['اليوم'] || '').trim() <= todayISO;
+                  const alreadyRated = (appState.data?.myEvaluatedSessionIds || []).includes(String(s['معرف الحصة'] || '').trim());
+                  return `
+                    ${!isFinished ? `
+                      <button class="btn btn-accent btn-sm" onclick="confirmAttendance('schedule', ${s._rowIndex}, 'سيحضر ✓')">تأكيد الحضور</button>
+                      <button class="btn btn-danger btn-sm" onclick="confirmAttendance('schedule', ${s._rowIndex}, 'اعتذار ✗')">اعتذار</button>
+                    ` : ''}
+                    ${isFinished ? `
+                      <button class="btn btn-primary btn-sm" onclick="openEvalModal('جماعي', '${escapeHtml(s['معرف الحصة'])}', '${escapeHtml(s['عنوان التمرين / الحصة'])}', '${escapeHtml(s['المدرب المسؤول'])}', '${escapeHtml(s['معرف الفريق'])}')">
+                        <i data-lucide="star" style="width:13px;height:13px;"></i> ${alreadyRated ? 'تعديل التقييم ★' : 'تقييم التمرين والكابتن ★'}
+                      </button>
+                    ` : ''}
+                  `;
+                })() : ''}
                 ${(isAdmin || isCoach) ? `
                   <button class="btn btn-glass btn-sm" onclick='openEditScheduleModal(${JSON.stringify(s)})'>تعديل / ملاحظات</button>
                   <button class="btn btn-danger btn-sm" onclick="deleteRow('schedule', ${s._rowIndex})">إلغاء الموعد</button>
@@ -2237,10 +2496,22 @@
                 <button class="btn btn-glass btn-sm" onclick="downloadSessionICS('حصة Private - ${escapeHtml(pr['اسم اللاعب'])}', '${escapeHtml(pr['اليوم'])}', '${escapeHtml(pr['التوقيت'])}', '${escapeHtml(pr['الملعب'])}')">
                   <i data-lucide="calendar-plus" style="width:13px;height:13px;"></i> للتقويم
                 </button>
-                ${isParent ? `
-                  <button class="btn btn-accent btn-sm" onclick="confirmAttendance('private', ${pr._rowIndex}, 'مؤكد ✓')">تأكيد الموعد</button>
-                  <button class="btn btn-danger btn-sm" onclick="confirmAttendance('private', ${pr._rowIndex}, 'طلب تأجيل ✗')">اعتذار</button>
-                ` : ''}
+                ${isParent ? (() => {
+                  const todayStr = new Date().toISOString().slice(0, 10);
+                  const isFinished = String(pr['اليوم'] || '').trim() <= todayStr;
+                  const alreadyRated = (appState.data?.myEvaluatedSessionIds || []).includes(String(pr['معرف الحصة'] || '').trim());
+                  return `
+                    ${!isFinished ? `
+                      <button class="btn btn-accent btn-sm" onclick="confirmAttendance('private', ${pr._rowIndex}, 'مؤكد ✓')">تأكيد الموعد</button>
+                      <button class="btn btn-danger btn-sm" onclick="confirmAttendance('private', ${pr._rowIndex}, 'طلب تأجيل ✗')">اعتذار</button>
+                    ` : ''}
+                    ${isFinished ? `
+                      <button class="btn btn-primary btn-sm" onclick="openEvalModal('Private', '${escapeHtml(pr['معرف الحصة'])}', 'حصة Private - ${escapeHtml(pr['اسم اللاعب'])}', '${escapeHtml(pr['المدرب المسؤول'])}', '${escapeHtml(pr['معرف الفريق'])}')">
+                        <i data-lucide="star" style="width:13px;height:13px;"></i> ${alreadyRated ? 'تعديل التقييم ★' : 'تقييم الحصة والكابتن ★'}
+                      </button>
+                    ` : ''}
+                  `;
+                })() : ''}
                 ${canManage ? `
                   <button class="btn btn-glass btn-sm" onclick='openEditPrivateModal(${JSON.stringify(pr)})'>تعديل الموعد</button>
                   <button class="btn btn-danger btn-sm" onclick="deleteRow('private', ${pr._rowIndex})">إلغاء الحصة</button>
